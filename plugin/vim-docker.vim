@@ -96,12 +96,12 @@ function! VDContainerAction(action)
 	call LoadDockerPS()
 endfunction
 
-function! TerminalCommand(command)
-	call term_start(a:command,{"term_finish":"close"})
+function! TerminalCommand(command,termname)
+	call term_start(a:command,{"term_finish":"close","term_name":a:termname})
 endfunction
 
 function! VDExec(command)
-	call TerminalCommand('docker exec -ti '.FindContainerID().' sh -c "'.a:command.'"')
+	call TerminalCommand('docker exec -ti '.FindContainerID().' sh -c "'.a:command.'"',FindContainerID())
 endfunction
 
 function! VDRunCommand()
