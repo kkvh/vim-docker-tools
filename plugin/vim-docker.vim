@@ -101,7 +101,6 @@ function! TerminalCommand(command)
 endfunction
 
 function! VDExec(command)
-	" call TerminalCommand('docker exec -ti '.shellescape(FindContainerID()).' sh -c "'.shellescape(a:command).'"')
 	call TerminalCommand('docker exec -ti '.FindContainerID().' sh -c "'.a:command.'"')
 endfunction
 
