@@ -97,7 +97,13 @@ function! VDContainerAction(action)
 endfunction
 
 function! TerminalCommand(command,termname)
-	call term_start(a:command,{"term_finish":"close","term_name":a:termname})
+	if has('nvim')
+		call termopen(a:command)
+	elseif has('terminal')
+		call term_start(a:command,{"term_finish":"close","term_name":a:termname})
+	else
+		echoerr 'terminal mode is not supported'
+	endif
 endfunction
 
 function! VDExec(command)
