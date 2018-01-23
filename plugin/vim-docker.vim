@@ -61,7 +61,7 @@ function! LoadDockerPS()
 	setlocal modifiable
 	let a:save_cursor = getcurpos()
 	normal! ggdG
-	execute "read ! docker ps -a"
+	read ! docker ps -a
 	normal! 1Gdd
 	call setpos('.', a:save_cursor)
 	setlocal nomodifiable
@@ -98,6 +98,7 @@ endfunction
 
 function! TerminalCommand(command,termname)
 	if has('nvim')
+		silent execute "leftabove split TERM"
 		call termopen(a:command)
 	elseif has('terminal')
 		call term_start(a:command,{"term_finish":"close","term_name":a:termname})
