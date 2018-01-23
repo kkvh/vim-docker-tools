@@ -88,12 +88,22 @@ function! FindContainerID()
 endfunction
 
 function! ContainerAction(action,dockerid)
-	call system('docker container '.a:action.' '.shellescape(a:dockerid))
+	if has('nvim')
+		call jobstart('docker container '.a:action.' '.a:dockerid,{'on_exit': 'ActionCallBack'})
+	elseif has('job')
+		call job_start('docker container '.a:action.' '.a:dockerid,{'out_cb': 'ActionCallBack'})
+	else
+		call system('docker container '.a:action.' '.shellescape(a:dockerid))
+	endif
+endfunction
+
+function! ActionCallBack(...)
+	call win_gotoid(g:vdocker_windowid)
+	call LoadDockerPS()
 endfunction
 
 function! VDContainerAction(action)
 	call ContainerAction(a:action,FindContainerID())
-	call LoadDockerPS()
 endfunction
 
 function! TerminalCommand(command,termname)
