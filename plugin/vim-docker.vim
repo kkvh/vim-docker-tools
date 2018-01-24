@@ -98,8 +98,12 @@ function! ContainerAction(action,dockerid)
 endfunction
 
 function! ActionCallBack(...)
-	call win_gotoid(g:vdocker_windowid)
-	call LoadDockerPS()
+	if exists('g:vdocker_windowid')
+		let a:current_windowid = win_getid()
+		call win_gotoid(g:vdocker_windowid)
+		call LoadDockerPS()
+		call win_gotoid(a:current_windowid)
+	endif
 endfunction
 
 function! VDContainerAction(action)
