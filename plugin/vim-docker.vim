@@ -61,7 +61,7 @@ function! LoadDockerPS()
 	setlocal modifiable
 	let a:save_cursor = getcurpos()
 	normal! ggdG
-	read ! docker ps -a
+	silent! read ! docker ps -a
 	normal! 1Gdd
 	call setpos('.', a:save_cursor)
 	setlocal nomodifiable
@@ -88,12 +88,25 @@ function! FindContainerID()
 endfunction
 
 function! ContainerAction(action,dockerid)
+	call EchoContainerActionMessage(a:action,a:dockerid)
 	if has('nvim')
-		call jobstart('docker container '.a:action.' '.a:dockerid,{'on_exit': 'ActionCallBack'})
+		call jobstart('docker container '.a:action.' '.a:dockerid,{'on_stdout': 'ActionCallBack','on_stderr': 'ErrCallBack'})
 	elseif has('job')
-		call job_start('docker container '.a:action.' '.a:dockerid,{'out_cb': 'ActionCallBack'})
+		call job_start('docker container '.a:action.' '.a:dockerid,{'out_cb': 'ActionCallBack','err_cb': 'ErrCallBack'})
 	else
 		call system('docker container '.a:action.' '.shellescape(a:dockerid))
+	endif
+endfunction
+
+function! EchoContainerActionMessage(action,dockerid)
+	if a:action=='start'
+		echo 'Starting container '.a:dockerid.'...'
+	elseif a:action=='stop'
+		echo 'Stopping container '.a:dockerid.'...'
+	elseif a:action=='rm'
+		echo 'Removing container '.a:dockerid.'...'
+	elseif a:action=='restart'
+		echo 'Restarting container '.a:dockerid.'...'
 	endif
 endfunction
 
@@ -103,6 +116,19 @@ function! ActionCallBack(...)
 		call win_gotoid(g:vdocker_windowid)
 		call LoadDockerPS()
 		call win_gotoid(a:current_windowid)
+		if has('nvim')
+			redraw | echo a:2[0]
+		else
+			redraw | echo a:2
+		endif
+	endif
+endfunction
+
+function! ErrCallBack(...)
+	if has('nvim')
+		redraw | echoerr a:2[0]
+	else
+		redraw | echoerr a:2
 	endif
 endfunction
 
