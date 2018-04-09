@@ -3,21 +3,16 @@ let g:vdocker_splitsize = 20
 command! OpenVDSplit :call OpenVDSplit()
 command! CloseVDSplit :call CloseVDSplit()
 command! ToggleVDSplit :call ToggleVDSplit()
-command! VDStartContainer :call VDContainerAction('start')
-command! VDStopContainer :call VDContainerAction('stop')
-command! VDDelContainer :call VDContainerAction('rm')
-command! VDRstartContainer :call VDContainerAction('restart')
-command! VDAttachContainer :call VDExec('sh')
 command! VDRunCommand :call VDRunCommand()
 
 function! SetKeyMapping()
 		nnoremap <buffer> <silent> q :CloseVDSplit<CR>
-		nnoremap <buffer> <silent> s :VDStartContainer<CR>
-		nnoremap <buffer> <silent> d :VDStopContainer<CR>
-		nnoremap <buffer> <silent> x :VDDelContainer<CR>
-		nnoremap <buffer> <silent> r :VDRstartContainer<CR>
-		nnoremap <buffer> <silent> > :VDAttachContainer<CR>
-		nnoremap <buffer> <silent> < :VDRunCommand<CR>
+		nnoremap <buffer> <silent> s :call VDContainerAction('start')<CR>
+		nnoremap <buffer> <silent> d :call VDContainerAction('stop')<CR>
+		nnoremap <buffer> <silent> x :call VDContainerAction('rm')<CR>
+		nnoremap <buffer> <silent> r :call VDContainerAction('restart')<CR>
+		nnoremap <buffer> <silent> > :call VDExec('sh')<CR>
+		nnoremap <buffer> <silent> < :call VDRunCommand()<CR>
 endfunction
 
 function! OpenVDSplit()
