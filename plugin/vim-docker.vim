@@ -13,11 +13,13 @@ function! SetKeyMapping()
 		nnoremap <buffer> <silent> r :call VDContainerAction('restart')<CR>
 		nnoremap <buffer> <silent> > :call VDExec('sh')<CR>
 		nnoremap <buffer> <silent> < :call VDRunCommand()<CR>
+		nnoremap <buffer> <silent> ? :call ToggleHelp()<CR>
 endfunction
 
 function! OpenVDSplit()
 	if !exists('g:vdocker_windowid')
 		silent execute "leftabove ".g:vdocker_splitsize."split DOCKER"
+		let b:show_help = 0
 		setlocal buftype=nofile
 		setlocal cursorline
 		call LoadDockerPS()
@@ -56,6 +58,12 @@ function! LoadDockerPS()
 	setlocal modifiable
 	let a:save_cursor = getcurpos()
 	normal! ggdG
+	if b:show_help
+		call GetHelp()
+		let b:first_row = getcurpos()[1]
+	else
+		let b:first_row = 1
+	endif
 	silent! read ! docker ps -a
 	normal! 1Gdd
 	call setpos('.', a:save_cursor)
@@ -68,14 +76,15 @@ endfunction
 
 function! FindContainerID()
 	let a:row_num = getcurpos()[1]
-	if a:row_num ==# 1
-		return
+	if a:row_num <=# b:first_row
+	" if a:row_num ==# 1
+		return ""
 	endif
 	call search("CONTAINER ID")
 	let a:current_cursor = getcurpos()
-	if a:current_cursor[1] !=# 1
+	if a:current_cursor[1] !=# b:first_row
 		echoerr "No container ID found"
-		return
+		return ""
 	endif
 	let a:current_cursor[1] = a:row_num
 	call setpos('.', a:current_cursor)
@@ -128,7 +137,10 @@ function! ErrCallBack(...)
 endfunction
 
 function! VDContainerAction(action)
-	call ContainerAction(a:action,FindContainerID())
+	let id = FindContainerID()
+	if id !=# ""
+		call ContainerAction(a:action,id)
+	endif
 endfunction
 
 function! TerminalCommand(command,termname)
@@ -149,4 +161,23 @@ endfunction
 function! VDRunCommand()
 	let command = input('Enter command: ')
 	call VDExec(command)
+endfunction
+
+function! GetHelp()
+	let help = "Vim-docker Tools quickhelp\n"
+	let help .= "------------------------------------------------------------------------------\n"
+	let help .= "s: start container\n"
+	let help .= "d: stop container\n"
+	let help .= "r: restart container\n"
+	let help .= "x: delete container\n"
+	let help .= "<: execute command to container\n"
+	let help .= ">: attach to container\n"
+	let help .= "?: toggle help\n"
+	let help .= "------------------------------------------------------------------------------\n"
+	silent! put =help
+endfunction
+
+function! ToggleHelp()
+	let b:show_help = !b:show_help
+	call LoadDockerPS()
 endfunction
