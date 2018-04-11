@@ -1,4 +1,4 @@
-let g:vdocker_splitsize = 20
+let g:vdocker_splitsize = 15
 
 command! OpenVDSplit :call OpenVDSplit()
 command! CloseVDSplit :call CloseVDSplit()
@@ -19,6 +19,7 @@ endfunction
 function! OpenVDSplit()
 	if !exists('g:vdocker_windowid')
 		silent execute "topleft ".g:vdocker_splitsize."split DOCKER"
+		silent topleft 
 		let b:show_help = 0
 		setlocal buftype=nofile
 		setlocal cursorline
