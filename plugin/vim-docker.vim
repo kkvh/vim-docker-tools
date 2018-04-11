@@ -18,7 +18,7 @@ endfunction
 
 function! OpenVDSplit()
 	if !exists('g:vdocker_windowid')
-		silent execute "leftabove ".g:vdocker_splitsize."split DOCKER"
+		silent execute "topleft ".g:vdocker_splitsize."split DOCKER"
 		let b:show_help = 0
 		setlocal buftype=nofile
 		setlocal cursorline
