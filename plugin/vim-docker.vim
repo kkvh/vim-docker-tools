@@ -23,6 +23,7 @@ function! OpenVDSplit()
 		let b:show_help = 0
 		setlocal buftype=nofile
 		setlocal cursorline
+		setlocal filetype=vim-docker
 		call LoadDockerPS()
 		normal! 2G
 		setlocal nobuflisted
@@ -63,6 +64,8 @@ function! LoadDockerPS()
 		call GetHelp()
 		let b:first_row = getcurpos()[1]
 	else
+		let help = "# Press ? for help"
+		silent! put =help
 		let b:first_row = 1
 	endif
 	silent! read ! docker ps -a
@@ -78,13 +81,12 @@ endfunction
 function! FindContainerID()
 	let a:row_num = getcurpos()[1]
 	if a:row_num <=# b:first_row
-	" if a:row_num ==# 1
 		return ""
 	endif
 	call search("CONTAINER ID")
 	let a:current_cursor = getcurpos()
 	if a:current_cursor[1] !=# b:first_row
-		echoerr "No container ID found"
+		call VDEchoError("No container ID found")
 		return ""
 	endif
 	let a:current_cursor[1] = a:row_num
@@ -105,13 +107,13 @@ endfunction
 
 function! EchoContainerActionMessage(action,dockerid)
 	if a:action=='start'
-		echo 'Starting container '.a:dockerid.'...'
+		call VDEcho('Starting container '.a:dockerid.'...')
 	elseif a:action=='stop'
-		echo 'Stopping container '.a:dockerid.'...'
+		call VDEcho('Stopping container '.a:dockerid.'...')
 	elseif a:action=='rm'
-		echo 'Removing container '.a:dockerid.'...'
+		call VDEcho('Removing container '.a:dockerid.'...')
 	elseif a:action=='restart'
-		echo 'Restarting container '.a:dockerid.'...'
+		call VDEcho('Restarting container '.a:dockerid.'...')
 	endif
 endfunction
 
@@ -122,18 +124,18 @@ function! ActionCallBack(...)
 		call LoadDockerPS()
 		call win_gotoid(a:current_windowid)
 		if has('nvim')
-			redraw | echo a:2[0]
+			call VDEcho(a:2[0])
 		else
-			redraw | echo a:2
+			call VDEcho(a:2)
 		endif
 	endif
 endfunction
 
 function! ErrCallBack(...)
 	if has('nvim')
-		redraw | echoerr a:2[0]
+		call VDEchoError(a:2[0])
 	else
-		redraw | echoerr a:2
+		call VDEchoError(a:2)
 	endif
 endfunction
 
@@ -151,7 +153,7 @@ function! TerminalCommand(command,termname)
 	elseif has('terminal')
 		call term_start(a:command,{"term_finish":"close","term_name":a:termname})
 	else
-		echoerr 'terminal mode is not supported'
+		call VDEchoError('terminal is not supported')
 	endif
 endfunction
 
@@ -165,20 +167,37 @@ function! VDRunCommand()
 endfunction
 
 function! GetHelp()
-	let help = "Vim-docker Tools quickhelp\n"
-	let help .= "------------------------------------------------------------------------------\n"
-	let help .= "s: start container\n"
-	let help .= "d: stop container\n"
-	let help .= "r: restart container\n"
-	let help .= "x: delete container\n"
-	let help .= "<: execute command to container\n"
-	let help .= ">: attach to container\n"
-	let help .= "?: toggle help\n"
-	let help .= "------------------------------------------------------------------------------\n"
+	let help = "# Vim-docker Tools quickhelp\n"
+	let help .= "# ------------------------------------------------------------------------------\n"
+	let help .= "# s: start container\n"
+	let help .= "# d: stop container\n"
+	let help .= "# r: restart container\n"
+	let help .= "# x: delete container\n"
+	let help .= "# <: execute command to container\n"
+	let help .= "# >: attach to container\n"
+	let help .= "# ?: toggle help\n"
+	let help .= "# ------------------------------------------------------------------------------\n"
 	silent! put =help
 endfunction
 
 function! ToggleHelp()
 	let b:show_help = !b:show_help
 	call LoadDockerPS()
+endfunction
+
+function! VDEcho(msg)
+	redraw
+	echom "vim-docker: " . a:msg
+endfunction
+
+function! VDEchoError(msg)
+	echohl errormsg
+	call VDEcho(a:msg)
+	echohl normal
+endfunction
+
+function! VDEchoWarning(msg)
+	echohl warningmsg
+	call VDEcho(a:msg)
+	echohl normal
 endfunction
