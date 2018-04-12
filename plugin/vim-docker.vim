@@ -66,7 +66,7 @@ function! LoadDockerPS()
 	else
 		let help = "# Press ? for help"
 		silent! put =help
-		let b:first_row = 1
+		let b:first_row = 2
 	endif
 	silent! read ! docker ps -a
 	normal! 1Gdd
