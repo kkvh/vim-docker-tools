@@ -11,6 +11,8 @@ function! SetKeyMapping()
 		nnoremap <buffer> <silent> d :call VDContainerAction('stop')<CR>
 		nnoremap <buffer> <silent> x :call VDContainerAction('rm')<CR>
 		nnoremap <buffer> <silent> r :call VDContainerAction('restart')<CR>
+		nnoremap <buffer> <silent> p :call VDContainerAction('pause')<CR>
+		nnoremap <buffer> <silent> u :call VDContainerAction('unpause')<CR>
 		nnoremap <buffer> <silent> > :call VDExec('sh')<CR>
 		nnoremap <buffer> <silent> < :call VDRunCommand()<CR>
 		nnoremap <buffer> <silent> ? :call ToggleHelp()<CR>
@@ -173,6 +175,8 @@ function! GetHelp()
 	let help .= "# d: stop container\n"
 	let help .= "# r: restart container\n"
 	let help .= "# x: delete container\n"
+	let help .= "# p: pause container\n"
+	let help .= "# u: unpause container\n"
 	let help .= "# <: execute command to container\n"
 	let help .= "# >: attach to container\n"
 	let help .= "# ?: toggle help\n"
