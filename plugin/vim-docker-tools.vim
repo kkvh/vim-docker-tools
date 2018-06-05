@@ -25,12 +25,14 @@ function! OpenVDSplit()
 		let b:show_help = 0
 		setlocal buftype=nofile
 		setlocal cursorline
-		setlocal filetype=vim-docker
+		setlocal filetype=docker-tools
 		call LoadDockerPS()
-		normal! 2G
+		silent 2
+
 		setlocal nobuflisted
 		let g:vdocker_windowid = win_getid()
 		autocmd BufWinLeave <buffer> call LeaveVDSplit()
+		autocmd CursorHold <buffer> call LoadDockerPS()
 		call SetKeyMapping()
 	else
 		call win_gotoid(g:vdocker_windowid)
@@ -61,7 +63,7 @@ endfunction
 function! LoadDockerPS()
 	setlocal modifiable
 	let a:save_cursor = getcurpos()
-	normal! ggdG
+	silent 1,$d
 	if b:show_help
 		call GetHelp()
 		let b:first_row = getcurpos()[1]
@@ -71,13 +73,9 @@ function! LoadDockerPS()
 		let b:first_row = 2
 	endif
 	silent! read ! docker ps -a
-	normal! 1Gdd
+	silent 1d
 	call setpos('.', a:save_cursor)
 	setlocal nomodifiable
-endfunction
-
-function! RefreshPanel(timerId)
-	call LoadDockerPS()
 endfunction
 
 function! FindContainerID()

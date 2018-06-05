@@ -1,4 +1,4 @@
-if exists("b:current_syntax")
+if exists('b:current_syntax')
 	finish
 endif
 
@@ -21,4 +21,4 @@ hi def link VDContainer String
 hi def link VDExitedContainer Comment
 hi def link VDPausedContainer Constant
 
-let b:current_syntax = "vim-docker"
+let b:current_syntax = 'docker-tools'
