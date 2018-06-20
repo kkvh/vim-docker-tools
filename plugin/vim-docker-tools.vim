@@ -13,19 +13,7 @@ command! -nargs=+ ContainerRemove call VDContainerAction('rm',<f-args>)
 command! -nargs=+ ContainerRestart call VDContainerAction('restart',<f-args>)
 command! -nargs=+ ContainerPause call VDContainerAction('pause',<f-args>)
 command! -nargs=+ ContainerUnpause call VDContainerAction('unpause',<f-args>)
-
-function! SetKeyMapping() abort
-		nnoremap <buffer> <silent> q :CloseVDSplit<CR>
-		nnoremap <buffer> <silent> s :call VDContainerAction('start',FindContainerID())<CR>
-		nnoremap <buffer> <silent> d :call VDContainerAction('stop',FindContainerID())<CR>
-		nnoremap <buffer> <silent> x :call VDContainerAction('rm',FindContainerID())<CR>
-		nnoremap <buffer> <silent> r :call VDContainerAction('restart',FindContainerID())<CR>
-		nnoremap <buffer> <silent> p :call VDContainerAction('pause',FindContainerID())<CR>
-		nnoremap <buffer> <silent> u :call VDContainerAction('unpause',FindContainerID())<CR>
-		nnoremap <buffer> <silent> > :call VDRunCommand()<CR>
-		nnoremap <buffer> <silent> < :call VDContainerLogs(FindContainerID())<CR>
-		nnoremap <buffer> <silent> ? :call docker_tools#ToggleHelp()<CR>
-endfunction
+command! -nargs=+ ContainerLogs call VDContainerLogs(<f-args>)
 
 function! OpenVDSplit() abort
 	if !exists('g:vdocker_windowid')
@@ -43,7 +31,7 @@ function! OpenVDSplit() abort
 		let g:vdocker_windowid = win_getid()
 		autocmd BufWinLeave <buffer> call docker_tools#LeaveVDSplit()
 		autocmd CursorHold <buffer> call LoadDockerPS()
-		call SetKeyMapping()
+		call docker_tools#SetKeyMapping()
 	else
 		call win_gotoid(g:vdocker_windowid)
 	endif
@@ -99,17 +87,16 @@ function! FindContainerID() abort
 endfunction
 
 function! VDContainerAction(action,id,...) abort
-	if a:id !=# ""
-		call docker_tools#ContainerAction(a:action,a:id,join(a:000,' '))
-	endif
+	call docker_tools#ContainerAction(a:action,a:id,join(a:000,' '))
 endfunction
 
-function! VDContainerLogs(id) abort
+function! VDContainerLogs(id,...) abort
 	silent execute printf("botright %d split %s_LOGS",g:vdocker_logs_splitsize,a:id)
 	setlocal buftype=nofile
 	setlocal cursorline
 	setlocal nobuflisted
-	silent execute printf("read ! docker container logs %s",a:id)
+	nnoremap <buffer> <silent> q :quit<CR>
+	silent execute printf("read ! docker container logs %s %s",join(a:000,' '),a:id)
 	silent 1d
 endfunction
 
