@@ -102,3 +102,16 @@ function! docker_tools#ErrCallBack(...) abort
 		call docker_tools#VDEchoError(a:2)
 	endif
 endfunction
+
+function! docker_tools#SetKeyMapping() abort
+		nnoremap <buffer> <silent> q :CloseVDSplit<CR>
+		nnoremap <buffer> <silent> s :call VDContainerAction('start',FindContainerID())<CR>
+		nnoremap <buffer> <silent> d :call VDContainerAction('stop',FindContainerID())<CR>
+		nnoremap <buffer> <silent> x :call VDContainerAction('rm',FindContainerID())<CR>
+		nnoremap <buffer> <silent> r :call VDContainerAction('restart',FindContainerID())<CR>
+		nnoremap <buffer> <silent> p :call VDContainerAction('pause',FindContainerID())<CR>
+		nnoremap <buffer> <silent> u :call VDContainerAction('unpause',FindContainerID())<CR>
+		nnoremap <buffer> <silent> > :call VDRunCommand()<CR>
+		nnoremap <buffer> <silent> < :call VDContainerLogs(FindContainerID())<CR>
+		nnoremap <buffer> <silent> ? :call docker_tools#ToggleHelp()<CR>
+endfunction
