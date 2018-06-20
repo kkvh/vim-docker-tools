@@ -1,4 +1,4 @@
-function! docker_tools#GetHelp() abort
+function! docker_tools#get_help() abort
 	let help = "# Vim-docker Tools quickhelp\n"
 	let help .= "# ------------------------------------------------------------------------------\n"
 	let help .= "# s: start container\n"

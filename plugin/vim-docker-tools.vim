@@ -57,7 +57,7 @@ function! LoadDockerPS() abort
 	let a:save_cursor = getcurpos()
 	silent 1,$d
 	if b:show_help
-		call docker_tools#GetHelp()
+		call docker_tools#get_help()
 		let b:first_row = getcurpos()[1]
 	else
 		let help = "# Press ? for help"
