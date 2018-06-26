@@ -2,7 +2,7 @@
 * Open vim-docker panel with `:OpenVDSplit`, close it with `:CloseVDSplit`
 * Toggle vim-docker panel with `:ToggleVDSplit`
 # TODO
-- [ ] Container log ([#2](../../issues/2))
+- [x] Container log ([#2](../../issues/2))
 - [ ] Autoloading
 - [ ] Documentations
 - [ ] Function name refractoring
