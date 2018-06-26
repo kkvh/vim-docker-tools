@@ -1,4 +1,4 @@
-function! docker_tools#get_help() abort
+function! s:help_get() abort
 	let help = "# Vim-docker Tools quickhelp\n"
 	let help .= "# ------------------------------------------------------------------------------\n"
 	let help .= "# s: start container\n"
@@ -16,31 +16,31 @@ endfunction
 
 function! docker_tools#ToggleHelp() abort
 	let b:show_help = !b:show_help
-	call LoadDockerPS()
+	call s:ui_load()
 endfunction
 
-function! docker_tools#VDEcho(msg) abort
+function! s:msg_echo(msg) abort
 	redraw
 	echom "vim-docker: " . a:msg
 endfunction
 
-function! docker_tools#VDEchoError(msg) abort
+function! s:error_echo(msg) abort
 	echohl errormsg
-	call docker_tools#VDEcho(a:msg)
+	call s:msg_echo(a:msg)
 	echohl normal
 endfunction
 
-function! docker_tools#VDEchoWarning(msg) abort
+function! s:warning_echo(msg) abort
 	echohl warningmsg
-	call docker_tools#VDEcho(a:msg)
+	call s:msg_echo(a:msg)
 	echohl normal
 endfunction
 
-function! docker_tools#VDExec(command) abort
-	call docker_tools#TerminalCommand(printf('docker exec -ti %s sh -c "%s"',FindContainerID(),a:command),FindContainerID())
+function! s:container_exec(command) abort
+	call s:term_win_open(printf('docker exec -ti %s sh -c "%s"',docker_tools#FindContainerID(),a:command),docker_tools#FindContainerID())
 endfunction
 
-function! docker_tools#TerminalCommand(command,termname) abort
+function! s:term_win_open(command,termname) abort
 	if has('nvim')
 		silent execute printf("botright %d split TERM",g:vdocker_term_splitsize)
 		call termopen(a:command)
@@ -48,70 +48,160 @@ function! docker_tools#TerminalCommand(command,termname) abort
 		silent execute printf("botright %d split TERM",g:vdocker_term_splitsize)
 		call term_start(a:command,{"term_finish":['open','close'][g:vdocker_term_closeonexit],"term_name":a:termname,"curwin":"1"})
 	else
-		call docker_tools#VDEchoError('terminal is not supported')
+		call s:error_echo('terminal is not supported')
 	endif
 endfunction
 
-function! docker_tools#EchoContainerActionMessage(action,id) abort
+function! s:action_msg_echo(action,id) abort
 	if a:action=='start'
-		call docker_tools#VDEcho('Starting container '.a:id.'...')
+		call s:msg_echo('Starting container '.a:id.'...')
 	elseif a:action=='stop'
-		call docker_tools#VDEcho('Stopping container '.a:id.'...')
+		call s:msg_echo('Stopping container '.a:id.'...')
 	elseif a:action=='rm'
-		call docker_tools#VDEcho('Removing container '.a:id.'...')
+		call s:msg_echo('Removing container '.a:id.'...')
 	elseif a:action=='restart'
-		call docker_tools#VDEcho('Restarting container '.a:id.'...')
+		call s:msg_echo('Restarting container '.a:id.'...')
 	endif
 endfunction
 
 function! docker_tools#ContainerAction(action,id,options) abort
-	call docker_tools#EchoContainerActionMessage(a:action,a:id)
+	call s:action_msg_echo(a:action,a:id)
 	if has('nvim')
-		call jobstart(printf('docker container %s %s %s',a:action,a:options,a:id),{'on_stdout': 'docker_tools#ActionCallBack','on_stderr': 'docker_tools#ErrCallBack'})
+		call jobstart(printf('docker container %s %s %s',a:action,a:options,a:id),{'on_stdout': 'docker_tools#action_cb','on_stderr': 'docker_tools#err_cb'})
 	elseif has('job')
-		call job_start(printf('docker container %s %s %s',a:action,a:options,a:id),{'out_cb': 'docker_tools#ActionCallBack','err_cb': 'docker_tools#ErrCallBack'})
+		call job_start(printf('docker container %s %s %s',a:action,a:options,a:id),{'out_cb': 'docker_tools#action_cb','err_cb': 'docker_tools#err_cb'})
 	else
 		call system(printf('docker container %s %s %s',a:action,a:options,shellescape(a:id)))
 	endif
 endfunction
 
-function! docker_tools#ActionCallBack(...) abort
+function! docker_tools#action_cb(...) abort
 	if exists('g:vdocker_windowid')
 		let a:current_windowid = win_getid()
 		call win_gotoid(g:vdocker_windowid)
-		call LoadDockerPS()
+		call s:ui_load()
 		call win_gotoid(a:current_windowid)
 	endif
 	if has('nvim')
-		call docker_tools#VDEcho(a:2[0])
+		call s:msg_echo(a:2[0])
 	else
-		call docker_tools#VDEcho(a:2)
+		call s:msg_echo(a:2)
 	endif
 endfunction
 
-function! docker_tools#LeaveVDSplit() abort
+function! s:window_close() abort
 	if exists('g:vdocker_windowid')
 		unlet g:vdocker_windowid
 	endif
 endfunction
 
-function! docker_tools#ErrCallBack(...) abort
+function! docker_tools#err_cb(...) abort
 	if has('nvim')
-		call docker_tools#VDEchoError(a:2[0])
+		call s:error_echo(a:2[0])
 	else
-		call docker_tools#VDEchoError(a:2)
+		call s:error_echo(a:2)
 	endif
 endfunction
 
-function! docker_tools#SetKeyMapping() abort
+function! docker_tools#VDContainerAction(action,id,...) abort
+	call docker_tools#ContainerAction(a:action,a:id,join(a:000,' '))
+endfunction
+
+function! docker_tools#VDContainerLogs(id,...) abort
+	silent execute printf("botright %d split %s_LOGS",g:vdocker_logs_splitsize,a:id)
+	setlocal buftype=nofile
+	setlocal cursorline
+	setlocal nobuflisted
+	nnoremap <buffer> <silent> q :quit<CR>
+	silent execute printf("read ! docker container logs %s %s",join(a:000,' '),a:id)
+	silent 1d
+endfunction
+
+function! docker_tools#VDRunCommand() abort
+	let command = input('Enter command: ')
+	call s:container_exec(command)
+endfunction
+
+function! s:mapping_set() abort
 		nnoremap <buffer> <silent> q :CloseVDSplit<CR>
-		nnoremap <buffer> <silent> s :call VDContainerAction('start',FindContainerID())<CR>
-		nnoremap <buffer> <silent> d :call VDContainerAction('stop',FindContainerID())<CR>
-		nnoremap <buffer> <silent> x :call VDContainerAction('rm',FindContainerID())<CR>
-		nnoremap <buffer> <silent> r :call VDContainerAction('restart',FindContainerID())<CR>
-		nnoremap <buffer> <silent> p :call VDContainerAction('pause',FindContainerID())<CR>
-		nnoremap <buffer> <silent> u :call VDContainerAction('unpause',FindContainerID())<CR>
-		nnoremap <buffer> <silent> > :call VDRunCommand()<CR>
-		nnoremap <buffer> <silent> < :call VDContainerLogs(FindContainerID())<CR>
+		nnoremap <buffer> <silent> s :call docker_tools#VDContainerAction('start',docker_tools#FindContainerID())<CR>
+		nnoremap <buffer> <silent> d :call docker_tools#VDContainerAction('stop',docker_tools#FindContainerID())<CR>
+		nnoremap <buffer> <silent> x :call docker_tools#VDContainerAction('rm',docker_tools#FindContainerID())<CR>
+		nnoremap <buffer> <silent> r :call docker_tools#VDContainerAction('restart',docker_tools#FindContainerID())<CR>
+		nnoremap <buffer> <silent> p :call docker_tools#VDContainerAction('pause',docker_tools#FindContainerID())<CR>
+		nnoremap <buffer> <silent> u :call docker_tools#VDContainerAction('unpause',docker_tools#FindContainerID())<CR>
+		nnoremap <buffer> <silent> > :call docker_tools#VDRunCommand()<CR>
+		nnoremap <buffer> <silent> < :call docker_tools#VDContainerLogs(docker_tools#FindContainerID())<CR>
 		nnoremap <buffer> <silent> ? :call docker_tools#ToggleHelp()<CR>
+endfunction
+
+function! docker_tools#FindContainerID() abort
+	let a:row_num = getcurpos()[1]
+	if a:row_num <=# b:first_row
+		return ""
+	endif
+	call search("CONTAINER ID")
+	let a:current_cursor = getcurpos()
+	if a:current_cursor[1] !=# b:first_row
+		call s:error_echo("No container ID found")
+		return ""
+	endif
+	let a:current_cursor[1] = a:row_num
+	call setpos('.', a:current_cursor)
+	return expand('<cWORD>')
+endfunction
+
+function! s:ui_load() abort
+	setlocal modifiable
+	let a:save_cursor = getcurpos()
+	silent 1,$d
+	if b:show_help
+		call s:help_get()
+		let b:first_row = getcurpos()[1]
+	else
+		let help = "# Press ? for help"
+		silent! put =help
+		let b:first_row = 2
+	endif
+	silent! read ! docker ps -a
+	silent 1d
+	call setpos('.', a:save_cursor)
+	setlocal nomodifiable
+endfunction
+
+function! docker_tools#OpenVDSplit() abort
+	if !exists('g:vdocker_windowid')
+		silent execute printf("topleft %s split DOCKER",g:vdocker_splitsize)
+		silent topleft 
+		let b:show_help = 0
+		setlocal buftype=nofile
+		setlocal cursorline
+		setlocal filetype=docker-tools
+		setlocal winfixheight
+		call s:ui_load()
+		silent 2
+
+		setlocal nobuflisted
+		let g:vdocker_windowid = win_getid()
+		autocmd BufWinLeave <buffer> call s:window_close()
+		autocmd CursorHold <buffer> call s:ui_load()
+		call s:mapping_set()
+	else
+		call win_gotoid(g:vdocker_windowid)
+	endif
+endfunction
+
+function! docker_tools#CloseVDSplit() abort
+	if exists('g:vdocker_windowid')
+		call win_gotoid(g:vdocker_windowid)
+		quit
+	endif
+endfunction
+
+function! docker_tools#ToggleVDSplit() abort
+	if !exists('g:vdocker_windowid')
+		call docker_tools#OpenVDSplit()
+	else
+		call docker_tools#CloseVDSplit()
+	endif
 endfunction
