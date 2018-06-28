@@ -97,7 +97,7 @@ COMMANDS                                               *docker-tools-commands*
 ==============================================================================
 MAPPINGS                                               *docker-tools-mappings*
 
-  	Default Mapping      | Details
+  	DockerTools Mapping  | Details
     ---------------------|----------------------------------------------
     s                    | Start container.
     d                    | Stop container.
