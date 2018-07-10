@@ -1,4 +1,5 @@
 # vim-docker-tools
+![demo](https://thumbs.gfycat.com/SinfulNecessaryBlackfootedferret-size_restricted.gif) 
 * Open DockerTools Panel with `:DockerToolsOpen`, close it with `:DockerToolsClose`
 * Toggle DockerTools Panel with `:DockerToolsToggle`
 * Support `:ContainerStart`, `:ContainerStop`, `:ContainerRemove`, `:ContainerRestart`, `:ContainerPause`, `:ContainerUnpause`, `ContainerLogs`. For details please check out the documentation (`:help docker-tools-commands`).
