@@ -1,4 +1,5 @@
 *vim-docker-tools.txt* Toolkit for managing docker containers
+*vim-docker-tools*
 
 ==============================================================================
 CONTENTS                                               *docker-tools-contents*
@@ -7,5 +8,141 @@ CONTENTS                                               *docker-tools-contents*
   2. Install......................................|docker-tools-install|
   3. Commands.....................................|docker-tools-commands|
   4. Mappings.....................................|docker-tools-mappings|
+  5. Settings.....................................|docker-tools-settings|
+  6. Contributing.................................|docker-tools-contributing|
 
 ==============================================================================
+INTRO                                                     *docker-tools-intro*
+
+vim-docker-tools provide a set of tools for managing Docker containers.
+
+==============================================================================
+INSTALL                                                 *docker-tools-install*
+
+*  Pathogen >
+
+    git clone https://github.com/kevinhui/vim-docker-tools.git \
+	  ~/.vim/bundle/vim-docker-tools
+<
+*  Vim-plug >
+
+    Plug 'kevinhui/vim-docker-tools'
+
+*  NeoBundle >
+
+    NeoBundle 'kevinhui/vim-docker-tools'
+<
+*  Vundle >
+
+    Plugin 'kevinhui/vim-docker-tools'
+<
+*  Manual >
+
+    Copy all of the files into your `~/.vim` directory
+<
+
+==============================================================================
+COMMANDS                                               *docker-tools-commands*
+
+                                                            *:DockerToolsOpen*
+:DockerToolsOpen
+
+	  Open DockerTools Panel.
+
+                                                           *:DockerToolsClose*
+:DockerToolsClose
+
+	  Close DockerTools Panel.
+
+                                                          *:DockerToolsToggle*
+:DockerToolsToggle
+
+	  Toggle between |:DockerToolsOpen| and |:DockerToolsClose|.
+
+                                                             *:ContainerStart*
+:ContainerStart [container] [options]
+
+	  Start container.
+
+                                                              *:ContainerStop*
+:ContainerStop [container] [options]
+
+	  Stop container.
+
+                                                            *:ContainerRemove*
+:ContainerRemove [container] [options]
+
+	  Remove container.
+
+                                                           *:ContainerRestart*
+:ContainerRestart [container] [options]
+
+	  Restart container.
+
+                                                             *:ContainerPause*
+:ContainerPause [container]
+
+	  Pause container.
+
+                                                           *:ContainerUnpause*
+:ContainerUnpause [container]
+
+	  Unpause container.
+
+                                                              *:ContainerLogs*
+:ContainerLogs [container] [options]
+
+	  Show container logs.
+
+==============================================================================
+MAPPINGS                                               *docker-tools-mappings*
+
+  	DockerTools Mapping  | Details
+    ---------------------|----------------------------------------------
+    s                    | Start container.
+    d                    | Stop container.
+    r                    | Restart container.
+    x                    | Delete container.
+    p                    | Pause container.
+    u                    | Unpause container.
+    >                    | Execute command to container.
+    <                    | Show container logs.
+    ?                    | Toggle help.
+
+==============================================================================
+SETTINGS                                               *docker-tools-settings*
+
+                                                        *'g:dockertools_size'*
+
+Use this option to set the size of the DockerTools Panel. Default value: 15
+>
+  let g:dockertools_size = 15
+<
+
+                                                   *'g:dockertools_term_size'*
+
+Use this option to set the terminal window size. Default value: 15
+>
+  let g:dockertools_term_size = 15
+<
+
+                                            *'g:dockertools_term_closeonexit'*
+
+Close terminal window when process exited. Default value: 1
+>
+  let g:dockertools_term_closeonexit = 1
+<
+
+                                                   *'g:dockertools_logs_size'*
+
+Use this option to set the logs window size. Default value: 30
+>
+  let g:dockertools_logs_size = 30
+<
+==============================================================================
+CONTRIBUTING                                       *docker-tools-contributing*
+
+Bug reports, feature requests and pull requests are all welcome!
+
+
+ vim: ft=help tw=78 et ts=2 sw=2 sts=2 norl
