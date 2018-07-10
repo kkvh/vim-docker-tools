@@ -3,9 +3,6 @@ let g:dockertools_term_size = 15
 let g:dockertools_term_closeonexit = 1
 let g:dockertools_logs_size = 30
 
-command! OpenVDSplit call docker_tools#dt_open()
-command! CloseVDSplit call docker_tools#dt_close()
-command! ToggleVDSplit call docker_tools#dt_toggle()
 command! DockerToolsOpen call docker_tools#dt_open()
 command! DockerToolsClose call docker_tools#dt_close()
 command! DockerToolsToggle call docker_tools#dt_toggle()
