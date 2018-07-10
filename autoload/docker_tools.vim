@@ -95,7 +95,7 @@ function! s:dt_get_id() abort
 endfunction
 
 function! s:dt_set_mapping() abort
-		nnoremap <buffer> <silent> q :CloseVDSplit<CR>
+		nnoremap <buffer> <silent> q :DockerToolsClose<CR>
 		nnoremap <buffer> <silent> s :call docker_tools#dt_action('start')<CR>
 		nnoremap <buffer> <silent> d :call docker_tools#dt_action('stop')<CR>
 		nnoremap <buffer> <silent> x :call docker_tools#dt_action('rm')<CR>
