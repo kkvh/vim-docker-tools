@@ -2,6 +2,7 @@ let g:dockertools_size = 15
 let g:dockertools_term_size = 15
 let g:dockertools_term_closeonexit = 1
 let g:dockertools_logs_size = 30
+let g:dockertools_default_all = 1
 
 command! DockerToolsOpen call docker_tools#dt_open()
 command! DockerToolsClose call docker_tools#dt_close()

@@ -1,9 +1,10 @@
-"docker tools controls
+"docker tools controls{{{
 function! docker_tools#dt_open() abort
 	if !exists('g:vdocker_windowid')
 		silent execute printf("topleft %s split DOCKER",g:dockertools_size)
 		silent topleft
 		let b:show_help = 0
+		let b:show_all_containers = g:dockertools_default_all
 		setlocal buftype=nofile
 		setlocal cursorline
 		setlocal filetype=docker-tools
@@ -34,15 +35,19 @@ function! docker_tools#dt_toggle() abort
 		call docker_tools#dt_close()
 	endif
 endfunction
-
-"docker tools commands
+"}}}
+"docker tools commands{{{
 function! docker_tools#dt_action(action) abort
-	call docker_tools#container_action(a:action,s:dt_get_id())
+	if s:dt_container_selected()
+		call docker_tools#container_action(a:action,s:dt_get_id())
+	endif
 endfunction
 
 function! docker_tools#dt_run_command() abort
-	let command = input('Enter command: ')
-	call s:container_exec(command)
+	if s:dt_container_selected()
+		let command = input('Enter command: ')
+		call s:container_exec(command)
+	endif
 endfunction
 
 function! docker_tools#dt_toggle_help() abort
@@ -50,11 +55,18 @@ function! docker_tools#dt_toggle_help() abort
 	call s:dt_ui_load()
 endfunction
 
-function! docker_tools#dt_logs() abort
-	call docker_tools#container_logs(s:dt_get_id())
+function! docker_tools#dt_toggle_all() abort
+	let b:show_all_containers = !b:show_all_containers
+	call s:dt_ui_load()
 endfunction
 
-"docker tools callbacks
+function! docker_tools#dt_logs() abort
+	if s:dt_container_selected()
+		call docker_tools#container_logs(s:dt_get_id())
+	endif
+endfunction
+"}}}
+"docker tools callbacks{{{
 function! docker_tools#action_cb(...) abort
 	if exists('g:vdocker_windowid')
 		let a:current_windowid = win_getid()
@@ -76,11 +88,10 @@ function! docker_tools#err_cb(...) abort
 		call s:echo_error(a:2)
 	endif
 endfunction
-
-"docker tools functions
+"}}}
+"docker tools functions{{{
 function! s:dt_get_id() abort
-	let a:row_num = getcurpos()[1]
-	if a:row_num <=# b:first_row
+	if !s:dt_container_selected()
 		return ""
 	endif
 	call search("CONTAINER ID")
@@ -104,6 +115,7 @@ function! s:dt_set_mapping() abort
 		nnoremap <buffer> <silent> u :call docker_tools#dt_action('unpause')<CR>
 		nnoremap <buffer> <silent> > :call docker_tools#dt_run_command()<CR>
 		nnoremap <buffer> <silent> < :call docker_tools#dt_logs()<CR>
+		nnoremap <buffer> <silent> a :call docker_tools#dt_toggle_all()<CR>
 		nnoremap <buffer> <silent> ? :call docker_tools#dt_toggle_help()<CR>
 endfunction
 
@@ -119,7 +131,11 @@ function! s:dt_ui_load() abort
 		silent! put =help
 		let b:first_row = 2
 	endif
-	silent! read ! docker ps -a
+	if b:show_all_containers
+		silent! read ! docker ps -a
+	else
+		silent! read ! docker ps
+	endif
 	silent 1d
 	call setpos('.', a:save_cursor)
 	setlocal nomodifiable
@@ -136,6 +152,7 @@ function! s:dt_get_help() abort
 	let help .= "# u: unpause container\n"
 	let help .= "# >: execute command to container\n"
 	let help .= "# <: show container logs\n"
+	let help .= "# a: toggle show all/running containers\n"
 	let help .= "# ?: toggle help\n"
 	let help .= "# ------------------------------------------------------------------------------\n"
 	silent! put =help
@@ -147,7 +164,15 @@ function! s:dt_unset_winid() abort
 	endif
 endfunction
 
-"container commands
+function! s:dt_container_selected() abort
+	let a:row_num = getcurpos()[1]
+	if a:row_num <=# b:first_row
+		return 0
+	endif
+	return 1
+endfunction
+"}}}
+"container commands{{{
 function! docker_tools#container_action(action,id,...) abort
 	call s:container_action_run(a:action,a:id,join(a:000,' '))
 endfunction
@@ -161,10 +186,12 @@ function! docker_tools#container_logs(id,...) abort
 	silent execute printf("read ! docker container logs %s %s",join(a:000,' '),a:id)
 	silent 1d
 endfunction
-
-"container functions
+"}}}
+"container functions{{{
 function! s:container_exec(command) abort
-	call s:term_win_open(printf('docker exec -ti %s sh -c "%s"',s:dt_get_id(),a:command),s:dt_get_id())
+	if a:command !=# ""
+		call s:term_win_open(printf('docker exec -ti %s sh -c "%s"',s:dt_get_id(),a:command),s:dt_get_id())
+	endif
 endfunction
 
 function! s:container_action_run(action,id,options) abort
@@ -189,8 +216,8 @@ function! s:echo_container_action_msg(action,id) abort
 		call s:echo_msg('Restarting container '.a:id.'...')
 	endif
 endfunction
-
-"utils
+"}}}
+"utils{{{
 function! s:echo_msg(msg) abort
 	redraw
 	echom "vim-docker: " . a:msg
@@ -219,3 +246,5 @@ function! s:term_win_open(command,termname) abort
 		call s:echo_error('terminal is not supported')
 	endif
 endfunction
+"}}}
+" vim: fdm=marker:
