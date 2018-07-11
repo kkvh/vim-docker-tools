@@ -107,6 +107,7 @@ MAPPINGS                                               *docker-tools-mappings*
     u                    | Unpause container.
     >                    | Execute command to container.
     <                    | Show container logs.
+    a                    | Toggle show all/running containers.
     ?                    | Toggle help.
 
 ==============================================================================
@@ -138,6 +139,13 @@ Close terminal window when process exited. Default value: 1
 Use this option to set the logs window size. Default value: 30
 >
   let g:dockertools_logs_size = 30
+<
+
+                                                   *'g:dockertools_default_all'*
+
+Show all or running containers only by default. Default value: 1
+>
+  let g:dockertools_default_all = 1
 <
 ==============================================================================
 CONTRIBUTING                                       *docker-tools-contributing*

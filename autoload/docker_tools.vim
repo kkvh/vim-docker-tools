@@ -4,6 +4,7 @@ function! docker_tools#dt_open() abort
 		silent execute printf("topleft %s split DOCKER",g:dockertools_size)
 		silent topleft
 		let b:show_help = 0
+		let b:show_all_containers = g:dockertools_default_all
 		setlocal buftype=nofile
 		setlocal cursorline
 		setlocal filetype=docker-tools
@@ -51,6 +52,11 @@ endfunction
 
 function! docker_tools#dt_toggle_help() abort
 	let b:show_help = !b:show_help
+	call s:dt_ui_load()
+endfunction
+
+function! docker_tools#dt_toggle_all() abort
+	let b:show_all_containers = !b:show_all_containers
 	call s:dt_ui_load()
 endfunction
 
@@ -109,6 +115,7 @@ function! s:dt_set_mapping() abort
 		nnoremap <buffer> <silent> u :call docker_tools#dt_action('unpause')<CR>
 		nnoremap <buffer> <silent> > :call docker_tools#dt_run_command()<CR>
 		nnoremap <buffer> <silent> < :call docker_tools#dt_logs()<CR>
+		nnoremap <buffer> <silent> a :call docker_tools#dt_toggle_all()<CR>
 		nnoremap <buffer> <silent> ? :call docker_tools#dt_toggle_help()<CR>
 endfunction
 
@@ -124,7 +131,11 @@ function! s:dt_ui_load() abort
 		silent! put =help
 		let b:first_row = 2
 	endif
-	silent! read ! docker ps -a
+	if b:show_all_containers
+		silent! read ! docker ps -a
+	else
+		silent! read ! docker ps
+	endif
 	silent 1d
 	call setpos('.', a:save_cursor)
 	setlocal nomodifiable
@@ -141,6 +152,7 @@ function! s:dt_get_help() abort
 	let help .= "# u: unpause container\n"
 	let help .= "# >: execute command to container\n"
 	let help .= "# <: show container logs\n"
+	let help .= "# a: toggle show all/running containers\n"
 	let help .= "# ?: toggle help\n"
 	let help .= "# ------------------------------------------------------------------------------\n"
 	silent! put =help
