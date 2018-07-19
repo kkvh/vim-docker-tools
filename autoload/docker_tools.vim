@@ -91,9 +91,7 @@ endfunction
 "}}}
 "docker tools functions{{{
 function! s:dt_get_id() abort
-	if !s:dt_container_selected()
-		return ""
-	endif
+	let a:row_num = getcurpos()[1]
 	call search("CONTAINER ID")
 	let a:current_cursor = getcurpos()
 	if a:current_cursor[1] !=# b:first_row
