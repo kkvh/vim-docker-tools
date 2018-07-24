@@ -3,6 +3,7 @@
 * Open DockerTools Panel with `:DockerToolsOpen`, close it with `:DockerToolsClose`
 * Toggle DockerTools Panel with `:DockerToolsToggle`
 * Support `:ContainerStart`, `:ContainerStop`, `:ContainerRemove`, `:ContainerRestart`, `:ContainerPause`, `:ContainerUnpause`, `ContainerLogs`. For details please check out the documentation (`:help docker-tools-commands`).
+* Autocompletion for container commands
 * Full documentation in `:help vim-docker-tools`
 # Install
 * Pathogen
@@ -15,10 +16,5 @@
   * `Plugin 'kevinhui/vim-docker-tools'`
 * Manual
   * Copy all of the files into your `~/.vim` directory
-
-# TODO
-- [x] Container log ([#2](../../issues/2))
-- [x] Autoloading
-- [x] Documentations
-- [x] Function name refractoring
-- [ ] More config customizations
+# Contributing
+Feel free to raise any questions/issues/comments. Submit pull request as you want.
