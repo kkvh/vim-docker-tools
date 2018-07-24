@@ -214,6 +214,12 @@ function! s:echo_container_action_msg(action,id) abort
 		call s:echo_msg('Restarting container '.a:id.'...')
 	endif
 endfunction
+
+function! docker_tools#Complete(ArgLead, CmdLine, CursorPos) abort
+	let containerstr = system('docker ps -a --format="{{.ID}} {{.Names}}"')
+	let result = split(containerstr)
+	return filter(result, 'v:val =~ "^'.a:ArgLead.'"')
+endfunction
 "}}}
 "utils{{{
 function! s:echo_msg(msg) abort
