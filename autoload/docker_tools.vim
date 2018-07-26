@@ -188,7 +188,8 @@ endfunction
 "container functions{{{
 function! s:container_exec(command) abort
 	if a:command !=# ""
-		call s:term_win_open(printf('docker exec -ti %s sh -c "%s"',s:dt_get_id(),a:command),s:dt_get_id())
+		let containerid = s:dt_get_id()
+		call s:term_win_open(printf('docker exec -ti %s sh -c "%s"',containerid,a:command),containerid)
 	endif
 endfunction
 
