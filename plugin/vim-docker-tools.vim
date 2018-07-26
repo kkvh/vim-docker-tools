@@ -18,6 +18,10 @@ if !exists('g:dockertools_default_all')
 	let g:dockertools_default_all = 1
 endif
 
+if !exists('g:dockertools_sudo_mode')
+	let g:dockertools_sudo_mode = 0
+endif
+
 command! DockerToolsOpen call docker_tools#dt_open()
 command! DockerToolsClose call docker_tools#dt_close()
 command! DockerToolsToggle call docker_tools#dt_toggle()
