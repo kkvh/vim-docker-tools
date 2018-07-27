@@ -129,14 +129,12 @@ function! s:dt_ui_load() abort
 		silent! put =help
 		let b:first_row = 2
 	endif
-	if b:show_all_containers
-		silent! read ! docker ps -a
-	else
-		silent! read ! docker ps
-	endif
+	silent! execute printf("read ! %sdocker ps%s",s:sudo_mode(),['',' -a'][b:show_all_containers])
 	silent 1d
 	call setpos('.', a:save_cursor)
 	setlocal nomodifiable
+	"Temp approach to refresh container list, ~0.1 second slower
+	call s:refresh_container_list()
 endfunction
 
 function! s:dt_get_help() abort
@@ -196,7 +194,7 @@ function! s:container_action_run(action,id,options) abort
 	call s:echo_container_action_msg(a:action,a:id)
 	if has('nvim')
 		call jobstart(printf('%sdocker container %s %s %s',s:sudo_mode(),a:action,a:options,a:id),{'on_stdout': 'docker_tools#action_cb','on_stderr': 'docker_tools#err_cb'})
-	elseif has('job')
+	elseif has('job') && !g:dockertools_disable_job
 		call job_start(printf('%sdocker container %s %s %s',s:sudo_mode(),a:action,a:options,a:id),{'out_cb': 'docker_tools#action_cb','err_cb': 'docker_tools#err_cb'})
 	else
 		call system(printf('%sdocker container %s %s %s',s:sudo_mode(),a:action,a:options,shellescape(a:id)))
@@ -215,10 +213,16 @@ function! s:echo_container_action_msg(action,id) abort
 	endif
 endfunction
 
-function! docker_tools#Complete(ArgLead, CmdLine, CursorPos) abort
-	let containerstr = system('docker ps -a --format="{{.ID}} {{.Names}}"')
-	let result = split(containerstr)
-	return filter(result, 'v:val =~ "^'.a:ArgLead.'"')
+function! s:refresh_container_list() abort
+	let container_str = system('docker ps -a --format="{{.ID}} {{.Names}}"')
+	let s:container_list = split(container_str)
+endfunction
+
+function! docker_tools#complete(ArgLead, CmdLine, CursorPos) abort
+	if !exists('s:container_list')
+		call s:refresh_container_list()
+	endif
+	return filter(s:container_list, 'v:val =~ "^'.a:ArgLead.'"')
 endfunction
 "}}}
 "utils{{{
