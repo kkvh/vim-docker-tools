@@ -18,9 +18,14 @@ if !exists('g:dockertools_default_all')
 	let g:dockertools_default_all = 1
 endif
 
+if exists('g:dockertools_docker_host')
+	call docker_tools#dt_set_host(g:dockertools_docker_host)
+endif
+
 command! DockerToolsOpen call docker_tools#dt_open()
 command! DockerToolsClose call docker_tools#dt_close()
 command! DockerToolsToggle call docker_tools#dt_toggle()
+command! -nargs=? DockerToolsSetHost call docker_tools#dt_set_host(<q-args>)
 command! -complete=customlist,docker_tools#Complete -nargs=+ ContainerStart call docker_tools#container_action('start',<f-args>)
 command! -complete=customlist,docker_tools#Complete -nargs=+ ContainerStop call docker_tools#container_action('stop',<f-args>)
 command! -complete=customlist,docker_tools#Complete -nargs=+ ContainerRemove call docker_tools#container_action('rm',<f-args>)

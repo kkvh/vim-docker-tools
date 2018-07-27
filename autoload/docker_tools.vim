@@ -35,6 +35,15 @@ function! docker_tools#dt_toggle() abort
 		call docker_tools#dt_close()
 	endif
 endfunction
+
+function! docker_tools#dt_set_host(...) 
+	if a:0 
+		let g:dockertools_docker_cmd = join(['docker -H', a:1], ' ')
+	else
+		let g:dockertools_docker_cmd = 'docker'
+	endif
+endfunction
+
 "}}}
 "docker tools commands{{{
 function! docker_tools#dt_action(action) abort
@@ -129,11 +138,12 @@ function! s:dt_ui_load() abort
 		silent! put =help
 		let b:first_row = 2
 	endif
+
+	let l:read_cmd = join(["silent!", "read !", g:dockertools_docker_cmd, 'ps'], ' ')
 	if b:show_all_containers
-		silent! read ! docker ps -a
-	else
-		silent! read ! docker ps
+		let l:read_cmd = join([read_cmd, '-a'], ' ')
 	endif
+	execute l:read_cmd
 	silent 1d
 	call setpos('.', a:save_cursor)
 	setlocal nomodifiable
@@ -181,25 +191,25 @@ function! docker_tools#container_logs(id,...) abort
 	setlocal cursorline
 	setlocal nobuflisted
 	nnoremap <buffer> <silent> q :quit<CR>
-	silent execute printf("read ! docker container logs %s %s",join(a:000,' '),a:id)
+	silent execute printf("read ! %s container logs %s %s",g:dockertools_docker_cmd,join(a:000,' '),a:id)
 	silent 1d
 endfunction
 "}}}
 "container functions{{{
 function! s:container_exec(command) abort
 	if a:command !=# ""
-		call s:term_win_open(printf('docker exec -ti %s sh -c "%s"',s:dt_get_id(),a:command),s:dt_get_id())
+		call s:term_win_open(printf('%s exec -ti %s sh -c "%s"',g:dockertools_docker_cmd,s:dt_get_id(),a:command),s:dt_get_id())
 	endif
 endfunction
 
 function! s:container_action_run(action,id,options) abort
 	call s:echo_container_action_msg(a:action,a:id)
 	if has('nvim')
-		call jobstart(printf('docker container %s %s %s',a:action,a:options,a:id),{'on_stdout': 'docker_tools#action_cb','on_stderr': 'docker_tools#err_cb'})
+		call jobstart(printf('%s container %s %s %s',g:dockertools_docker_cmd,a:action,a:options,a:id),{'on_stdout': 'docker_tools#action_cb','on_stderr': 'docker_tools#err_cb'})
 	elseif has('job')
-		call job_start(printf('docker container %s %s %s',a:action,a:options,a:id),{'out_cb': 'docker_tools#action_cb','err_cb': 'docker_tools#err_cb'})
+		call job_start(printf('%s container %s %s %s',g:dockertools_docker_cmd,a:action,a:options,a:id),{'out_cb': 'docker_tools#action_cb','err_cb': 'docker_tools#err_cb'})
 	else
-		call system(printf('docker container %s %s %s',a:action,a:options,shellescape(a:id)))
+		call system(printf('%s container %s %s %s',g:dockertools_docker_cmd,a:action,a:options,shellescape(a:id)))
 	endif
 endfunction
 
@@ -216,7 +226,7 @@ function! s:echo_container_action_msg(action,id) abort
 endfunction
 
 function! docker_tools#Complete(ArgLead, CmdLine, CursorPos) abort
-	let containerstr = system('docker ps -a --format="{{.ID}} {{.Names}}"')
+	let containerstr = system(g:dockertools_docker_cmd + 'ps -a --format="{{.ID}} {{.Names}}"')
 	let result = split(containerstr)
 	return filter(result, 'v:val =~ "^'.a:ArgLead.'"')
 endfunction
