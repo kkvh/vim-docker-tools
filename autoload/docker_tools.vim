@@ -37,7 +37,7 @@ function! docker_tools#dt_toggle() abort
 endfunction
 
 function! docker_tools#dt_set_host(...) 
-	if a:0 
+	if a:0 == 1
 		let g:dockertools_docker_cmd = join(['docker -H', a:1], ' ')
 	else
 		let g:dockertools_docker_cmd = 'docker'
