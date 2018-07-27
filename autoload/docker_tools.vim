@@ -35,6 +35,15 @@ function! docker_tools#dt_toggle() abort
 		call docker_tools#dt_close()
 	endif
 endfunction
+
+function! docker_tools#dt_set_host(...) 
+	if a:0 == 1 && (index(["''",'""',''], a:1)) == -1
+		let g:dockertools_docker_cmd = join(['docker -H', a:1], ' ')
+	else
+		let g:dockertools_docker_cmd = 'docker'
+	endif
+endfunction
+
 "}}}
 "docker tools commands{{{
 function! docker_tools#dt_action(action) abort
@@ -129,7 +138,9 @@ function! s:dt_ui_load() abort
 		silent! put =help
 		let b:first_row = 2
 	endif
-	silent! execute printf("read ! %sdocker ps%s",s:sudo_mode(),['',' -a'][b:show_all_containers])
+
+	silent! execute printf("read ! %s%s ps%s",s:sudo_mode(),g:dockertools_docker_cmd,['',' -a'][b:show_all_containers])
+
 	silent 1d
 	call setpos('.', a:save_cursor)
 	setlocal nomodifiable
@@ -177,7 +188,7 @@ function! docker_tools#container_logs(id,...) abort
 	setlocal cursorline
 	setlocal nobuflisted
 	nnoremap <buffer> <silent> q :quit<CR>
-	silent execute printf("read ! %sdocker container logs %s %s",s:sudo_mode(),join(a:000,' '),a:id)
+	silent execute printf("read ! %s%s container logs %s %s",s:sudo_mode(),g:dockertools_docker_cmd,join(a:000,' '),a:id)
 	silent 1d
 endfunction
 "}}}
@@ -185,18 +196,18 @@ endfunction
 function! s:container_exec(command) abort
 	if a:command !=# ""
 		let containerid = s:dt_get_id()
-		call s:term_win_open(printf('%sdocker exec -ti %s sh -c "%s"',s:sudo_mode(),containerid,a:command),containerid)
+		call s:term_win_open(printf('%s%s exec -ti %s sh -c "%s"',s:sudo_mode(),g:dockertools_docker_cmd,containerid,a:command),containerid)
 	endif
 endfunction
 
 function! s:container_action_run(action,id,options) abort
 	call s:echo_container_action_msg(a:action,a:id)
 	if has('nvim')
-		call jobstart(printf('%sdocker container %s %s %s',s:sudo_mode(),a:action,a:options,a:id),{'on_stdout': 'docker_tools#action_cb','on_stderr': 'docker_tools#err_cb'})
+		call jobstart(printf('%s%s container %s %s %s',s:sudo_mode(),g:dockertools_docker_cmd,a:action,a:options,a:id),{'on_stdout': 'docker_tools#action_cb','on_stderr': 'docker_tools#err_cb'})
 	elseif has('job') && !g:dockertools_disable_job
-		call job_start(printf('%sdocker container %s %s %s',s:sudo_mode(),a:action,a:options,a:id),{'out_cb': 'docker_tools#action_cb','err_cb': 'docker_tools#err_cb'})
+		call job_start(printf('%s%s container %s %s %s',s:sudo_mode(),g:dockertools_docker_cmd,a:action,a:options,a:id),{'out_cb': 'docker_tools#action_cb','err_cb': 'docker_tools#err_cb'})
 	else
-		call system(printf('%sdocker container %s %s %s',s:sudo_mode(),a:action,a:options,shellescape(a:id)))
+		call system(printf('%s%s container %s %s %s',s:sudo_mode(),g:dockertools_docker_cmd,a:action,a:options,shellescape(a:id)))
 	endif
 endfunction
 
@@ -213,7 +224,7 @@ function! s:echo_container_action_msg(action,id) abort
 endfunction
 
 function! s:refresh_container_list() abort
-	let container_str = system('docker ps -a --format="{{.ID}} {{.Names}}"')
+	let container_str = system(g:dockertools_docker_cmd + ' ps -a --format="{{.ID}} {{.Names}}"')
 	let s:container_list = split(container_str)
 endfunction
 

@@ -59,6 +59,11 @@ COMMANDS                                                 *docker-tools-commands*
 
 	  Toggle between |:DockerToolsOpen| and |:DockerToolsClose|.
 
+                                                          *:DockerToolsSetHost*
+:DockerToolsSetHost [host_url]
+
+    Set the host URL for the docker daemon.
+
                                                                *:ContainerStart*
 :ContainerStart [container] [options]
 
@@ -172,8 +177,26 @@ Use |system()| instead of |job_start()|. Not useful for neovim. Default value: 0
 <
 Note: |system()| will not return callback message.
 
+                                                   *'g:dockertools_docker_host'*
+
+Use this option to set the default host string for docker. Default value: 
+>
+  let g:dockertoosl_docker_host = 
+<
+Note: There is no default value for this variable. If one is not provided by
+the user, 'docker' will be used as the command prefix, with no -H flag or
+host string provided
+
+                                                   *'g:dockertools_docker_cmd'*
+
+The prefix to use for the docker cli. Default value: docker
+>
+  let g:dockertools_docker_cmd = 'docker'
+<
+
 ================================================================================
 CONTRIBUTING                                         *docker-tools-contributing*
+>>>>>>> e28d09000894febd562c50a3a7caa101bf151c14
 
 Bug reports, feature requests and pull requests are all welcome!
 

@@ -26,9 +26,16 @@ if !exists('g:dockertools_disable_job')
 	let g:dockertools_disable_job = 0
 endif
 
+if exists('g:dockertools_docker_host')
+	call docker_tools#dt_set_host(g:dockertools_docker_host)
+else
+	call docker_tools#dt_set_host()
+endif
+
 command! DockerToolsOpen call docker_tools#dt_open()
 command! DockerToolsClose call docker_tools#dt_close()
 command! DockerToolsToggle call docker_tools#dt_toggle()
+command! -nargs=? DockerToolsSetHost call docker_tools#dt_set_host(<q-args>)
 command! -complete=customlist,docker_tools#complete -nargs=+ ContainerStart call docker_tools#container_action('start',<f-args>)
 command! -complete=customlist,docker_tools#complete -nargs=+ ContainerStop call docker_tools#container_action('stop',<f-args>)
 command! -complete=customlist,docker_tools#complete -nargs=+ ContainerRemove call docker_tools#container_action('rm',<f-args>)
