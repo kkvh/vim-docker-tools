@@ -133,8 +133,6 @@ function! s:dt_ui_load() abort
 	silent 1d
 	call setpos('.', a:save_cursor)
 	setlocal nomodifiable
-	"Temp approach to refresh container list, ~0.1 second slower
-	call s:refresh_container_list()
 endfunction
 
 function! s:dt_get_help() abort
