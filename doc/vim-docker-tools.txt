@@ -72,6 +72,11 @@ COMMANDS                                                 *docker-tools-commands*
     An empty string will remove all currently active filters
     Invalid filter keys will be dropped from the filter.
 
+                                                           *:DockerToolsClearFilter*
+:DockerToolsClearFilter [filters]
+
+    Clears the filter being used for displaying containers.
+
                                                                *:ContainerStart*
 :ContainerStart [container] [options]
 
