@@ -224,7 +224,7 @@ function! s:echo_container_action_msg(action,id) abort
 endfunction
 
 function! s:refresh_container_list() abort
-	let container_str = system(g:dockertools_docker_cmd + ' ps -a --format="{{.ID}} {{.Names}}"')
+	let container_str = system(s:sudo_mode().g:dockertools_docker_cmd.' ps -a --format="{{.ID}} {{.Names}}"')
 	let s:container_list = split(container_str)
 endfunction
 
