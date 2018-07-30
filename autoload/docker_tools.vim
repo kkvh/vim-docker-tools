@@ -297,7 +297,7 @@ function! s:sudo_mode() abort
 	return ['','sudo '][g:dockertools_sudo_mode]
 endfunction
 "}}}
-"global vars {{{
+"referal vars {{{
 let s:ps_filters  = ['id', 'name', 'label', 'exited', 'status', 'ancestor', 'before', 'since', 'volume', 'network', 'publish', 'expose', 'health', 'isolation', 'is-task']
 "}}}
 " vim: fdm=marker:
