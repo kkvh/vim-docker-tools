@@ -44,6 +44,22 @@ function! docker_tools#dt_set_host(...)
 	endif
 endfunction
 
+function! docker_tools#dt_set_filter(filters) abort
+	"validate the filter keys
+	"expect filters to be space delimited
+	"expect key value to be '=' delimited
+	let l:filters = '-f'
+	for l:ps_filter in split(a:filters, ' ')
+		let l:filter_components = split(l:ps_filter, '=')
+		if index(s:ps_filters, filter_components[0]) > -1
+			let l:filters = join([l:filters, l:ps_filter], ' ')
+		endif
+	endfor
+	let g:dockertools_ps_filter = l:filters
+	if '-f' == g:dockertools_ps_filter
+		let g:dockertools_ps_filter = ''
+	endif
+endfunction
 "}}}
 "docker tools commands{{{
 function! docker_tools#dt_action(action) abort
@@ -73,6 +89,12 @@ function! docker_tools#dt_logs() abort
 	if s:dt_container_selected()
 		call docker_tools#container_logs(s:dt_get_id())
 	endif
+endfunction
+
+function! docker_tools#dt_ui_set_filter()
+	let l:filter = input("Enter Filter(s): ")
+	call docker_tools#dt_set_filter(l:filter)
+	call s:dt_ui_load()
 endfunction
 "}}}
 "docker tools callbacks{{{
@@ -124,6 +146,7 @@ function! s:dt_set_mapping() abort
 		nnoremap <buffer> <silent> < :call docker_tools#dt_logs()<CR>
 		nnoremap <buffer> <silent> a :call docker_tools#dt_toggle_all()<CR>
 		nnoremap <buffer> <silent> ? :call docker_tools#dt_toggle_help()<CR>
+		nnoremap <buffer> <silent> f :call docker_tools#dt_ui_set_filter()<CR>
 endfunction
 
 function! s:dt_ui_load() abort
@@ -139,7 +162,7 @@ function! s:dt_ui_load() abort
 		let b:first_row = 2
 	endif
 
-	silent! execute printf("read ! %s%s ps%s",s:sudo_mode(),g:dockertools_docker_cmd,['',' -a'][b:show_all_containers])
+	silent! execute printf("read ! %s%s ps%s %s",s:sudo_mode(),g:dockertools_docker_cmd,['',' -a'][b:show_all_containers], g:dockertools_ps_filter)
 
 	silent 1d
 	call setpos('.', a:save_cursor)
@@ -149,6 +172,7 @@ endfunction
 function! s:dt_get_help() abort
 	let help = "# vim-docker-tools quickhelp\n"
 	let help .= "# ------------------------------------------------------------------------------\n"
+	let help .= "# f: set container filter\n"
 	let help .= "# s: start container\n"
 	let help .= "# d: stop container\n"
 	let help .= "# r: restart container\n"
@@ -268,5 +292,8 @@ endfunction
 function! s:sudo_mode() abort
 	return ['','sudo '][g:dockertools_sudo_mode]
 endfunction
+"}}}
+"global vars {{{
+let s:ps_filters  = ['id', 'name', 'label', 'exited', 'status', 'ancestor', 'before', 'since', 'volume', 'network', 'publish', 'expose', 'health', 'isolation', 'is-task']
 "}}}
 " vim: fdm=marker:
