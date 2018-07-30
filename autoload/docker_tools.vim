@@ -59,6 +59,10 @@ function! docker_tools#dt_set_filter(filters) abort
 	if '-f' == g:dockertools_ps_filter
 		let g:dockertools_ps_filter = ''
 	endif
+
+	if exists('g:vdocker_windowid')
+		call s:dt_ui_load()
+	endif
 endfunction
 "}}}
 "docker tools commands{{{
