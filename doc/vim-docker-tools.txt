@@ -64,6 +64,14 @@ COMMANDS                                                 *docker-tools-commands*
 
     Set the host URL for the docker daemon.
 
+                                                           *:DockerToolsSetFilter*
+:DockerToolsSetFilter [filters]
+
+    Set the filters to be used when displaying containers. This follows the
+    same format as the filter flag used by the `docker ps` command.
+    An empty string will remove all currently active filters
+    Invalid filter keys will be dropped from the filter.
+
                                                                *:ContainerStart*
 :ContainerStart [container] [options]
 
@@ -104,6 +112,7 @@ MAPPINGS                                                 *docker-tools-mappings*
 
   	DockerTools Mapping  | Details
     ---------------------|----------------------------------------------
+    f                    | Set container filters.
     s                    | Start container.
     d                    | Stop container.
     r                    | Restart container.
@@ -193,10 +202,15 @@ The prefix to use for the docker cli. Default value: docker
 >
   let g:dockertools_docker_cmd = 'docker'
 <
+                                                   *'g:dockertools_ps_filter'*
+
+The filter to use when displaying containers. Default value: ''
+>
+  let g:dockertools_ps_filter = 'name=my_container'
+<
 
 ================================================================================
 CONTRIBUTING                                         *docker-tools-contributing*
->>>>>>> e28d09000894febd562c50a3a7caa101bf151c14
 
 Bug reports, feature requests and pull requests are all welcome!
 
