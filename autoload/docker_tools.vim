@@ -48,11 +48,11 @@ function! docker_tools#dt_set_filter(filters) abort
 	"validate the filter keys
 	"expect filters to be space delimited
 	"expect key value to be '=' delimited
-	let l:filters = '-f'
+	let l:filters = ''
 	for l:ps_filter in split(a:filters, ' ')
 		let l:filter_components = split(l:ps_filter, '=')
 		if index(s:ps_filters, filter_components[0]) > -1
-			let l:filters = join([l:filters, l:ps_filter], ' ')
+			let l:filters = join([l:filters, '-f', l:ps_filter], ' ')
 		endif
 	endfor
 	let g:dockertools_ps_filter = l:filters
