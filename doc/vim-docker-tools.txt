@@ -59,7 +59,7 @@ COMMANDS                                                 *docker-tools-commands*
 
 	  Toggle between |:DockerToolsOpen| and |:DockerToolsClose|.
 
-                                                          *:DockerToolsSetHost*
+                                                           *:DockerToolsSetHost*
 :DockerToolsSetHost [host_url]
 
     Set the host URL for the docker daemon.
