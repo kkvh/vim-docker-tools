@@ -107,13 +107,13 @@ MAPPINGS                                                 *docker-tools-mappings*
     s                    | Start container.
     d                    | Stop container.
     r                    | Restart container.
-    R                    | Reload current container data.
     x                    | Delete container.
     p                    | Pause container.
     u                    | Unpause container.
     >                    | Execute command to container.
     <                    | Show container logs.
     a                    | Toggle show all/running containers.
+    R                    | Refresh container status.
     ?                    | Toggle help.
 
 ================================================================================

@@ -122,12 +122,12 @@ function! s:dt_set_mapping() abort
 		nnoremap <buffer> <silent> d :call docker_tools#dt_action('stop')<CR>
 		nnoremap <buffer> <silent> x :call docker_tools#dt_action('rm')<CR>
 		nnoremap <buffer> <silent> r :call docker_tools#dt_action('restart')<CR>
-		nnoremap <buffer> <silent> R :call docker_tools#dt_reload()<CR>
 		nnoremap <buffer> <silent> p :call docker_tools#dt_action('pause')<CR>
 		nnoremap <buffer> <silent> u :call docker_tools#dt_action('unpause')<CR>
 		nnoremap <buffer> <silent> > :call docker_tools#dt_run_command()<CR>
 		nnoremap <buffer> <silent> < :call docker_tools#dt_logs()<CR>
 		nnoremap <buffer> <silent> a :call docker_tools#dt_toggle_all()<CR>
+		nnoremap <buffer> <silent> R :call docker_tools#dt_reload()<CR>
 		nnoremap <buffer> <silent> ? :call docker_tools#dt_toggle_help()<CR>
 endfunction
 
@@ -157,13 +157,13 @@ function! s:dt_get_help() abort
 	let help .= "# s: start container\n"
 	let help .= "# d: stop container\n"
 	let help .= "# r: restart container\n"
-	let help .= "# R: reload container data\n"
 	let help .= "# x: delete container\n"
 	let help .= "# p: pause container\n"
 	let help .= "# u: unpause container\n"
 	let help .= "# >: execute command to container\n"
 	let help .= "# <: show container logs\n"
 	let help .= "# a: toggle show all/running containers\n"
+	let help .= "# R: refresh container status\n"
 	let help .= "# ?: toggle help\n"
 	let help .= "# ------------------------------------------------------------------------------\n"
 	silent! put =help
