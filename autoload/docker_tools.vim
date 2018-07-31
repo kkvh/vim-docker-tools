@@ -28,6 +28,10 @@ function! docker_tools#dt_close() abort
 	endif
 endfunction
 
+function! docker_tools#dt_reload() abort
+		call s:dt_ui_load()
+endfunction
+
 function! docker_tools#dt_toggle() abort
 	if !exists('g:vdocker_windowid')
 		call docker_tools#dt_open()
@@ -118,6 +122,7 @@ function! s:dt_set_mapping() abort
 		nnoremap <buffer> <silent> d :call docker_tools#dt_action('stop')<CR>
 		nnoremap <buffer> <silent> x :call docker_tools#dt_action('rm')<CR>
 		nnoremap <buffer> <silent> r :call docker_tools#dt_action('restart')<CR>
+		nnoremap <buffer> <silent> R :call docker_tools#dt_reload()<CR>
 		nnoremap <buffer> <silent> p :call docker_tools#dt_action('pause')<CR>
 		nnoremap <buffer> <silent> u :call docker_tools#dt_action('unpause')<CR>
 		nnoremap <buffer> <silent> > :call docker_tools#dt_run_command()<CR>
@@ -152,6 +157,7 @@ function! s:dt_get_help() abort
 	let help .= "# s: start container\n"
 	let help .= "# d: stop container\n"
 	let help .= "# r: restart container\n"
+	let help .= "# R: reload container data\n"
 	let help .= "# x: delete container\n"
 	let help .= "# p: pause container\n"
 	let help .= "# u: unpause container\n"
