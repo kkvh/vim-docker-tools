@@ -113,6 +113,7 @@ MAPPINGS                                                 *docker-tools-mappings*
     >                    | Execute command to container.
     <                    | Show container logs.
     a                    | Toggle show all/running containers.
+    R                    | Refresh container status.
     ?                    | Toggle help.
 
 ================================================================================

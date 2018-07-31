@@ -28,6 +28,10 @@ function! docker_tools#dt_close() abort
 	endif
 endfunction
 
+function! docker_tools#dt_reload() abort
+		call s:dt_ui_load()
+endfunction
+
 function! docker_tools#dt_toggle() abort
 	if !exists('g:vdocker_windowid')
 		call docker_tools#dt_open()
@@ -123,6 +127,7 @@ function! s:dt_set_mapping() abort
 		nnoremap <buffer> <silent> > :call docker_tools#dt_run_command()<CR>
 		nnoremap <buffer> <silent> < :call docker_tools#dt_logs()<CR>
 		nnoremap <buffer> <silent> a :call docker_tools#dt_toggle_all()<CR>
+		nnoremap <buffer> <silent> R :call docker_tools#dt_reload()<CR>
 		nnoremap <buffer> <silent> ? :call docker_tools#dt_toggle_help()<CR>
 endfunction
 
@@ -158,6 +163,7 @@ function! s:dt_get_help() abort
 	let help .= "# >: execute command to container\n"
 	let help .= "# <: show container logs\n"
 	let help .= "# a: toggle show all/running containers\n"
+	let help .= "# R: refresh container status\n"
 	let help .= "# ?: toggle help\n"
 	let help .= "# ------------------------------------------------------------------------------\n"
 	silent! put =help
