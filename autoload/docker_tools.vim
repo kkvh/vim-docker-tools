@@ -5,13 +5,9 @@ function! docker_tools#dt_open() abort
 		silent topleft
 		let b:show_help = 0
 		let b:show_all_containers = g:dockertools_default_all
-		setlocal buftype=nofile
-		setlocal cursorline
-		setlocal filetype=docker-tools
-		setlocal winfixheight
+		setlocal buftype=nofile cursorline filetype=docker-tools winfixheight bufhidden=delete readonly nobuflisted
 		call s:dt_ui_load()
 		silent 2
-		setlocal nobuflisted
 		let g:vdocker_windowid = win_getid()
 		autocmd BufWinLeave <buffer> call s:dt_unset_winid()
 		autocmd CursorHold <buffer> call s:dt_ui_load()
@@ -190,9 +186,7 @@ endfunction
 
 function! docker_tools#container_logs(id,...) abort
 	silent execute printf("botright %d split %s_LOGS",g:dockertools_logs_size,a:id)
-	setlocal buftype=nofile
-	setlocal cursorline
-	setlocal nobuflisted
+	setlocal buftype=nofile bufhidden=delete cursorline nobuflisted
 	nnoremap <buffer> <silent> q :quit<CR>
 	silent execute printf("read ! %s%s container logs %s %s",s:sudo_mode(),g:dockertools_docker_cmd,join(a:000,' '),a:id)
 	silent 1d
