@@ -7,7 +7,7 @@ CONTENTS                                                 *docker-tools-contents*
   1. Intro........................................|docker-tools-intro|
   2. Install......................................|docker-tools-install|
   3. Commands.....................................|docker-tools-commands|
-  4. Mappings.....................................|docker-tools-mappings|
+  4. Mapping......................................|docker-tools-mapping|
   5. Settings.....................................|docker-tools-settings|
   6. Contributing.................................|docker-tools-contributing|
 
@@ -113,22 +113,23 @@ COMMANDS                                                 *docker-tools-commands*
 	  Show container logs.
 
 ================================================================================
-MAPPINGS                                                 *docker-tools-mappings*
+Mapping                                                   *docker-tools-mapping*
 
-  	DockerTools Mapping  | Details
-    ---------------------|----------------------------------------------
-    f                    | Set container filters.
-    s                    | Start container.
-    d                    | Stop container.
-    r                    | Restart container.
-    x                    | Delete container.
-    p                    | Pause container.
-    u                    | Unpause container.
-    >                    | Execute command to container.
-    <                    | Show container logs.
-    a                    | Toggle show all/running containers.
-    R                    | Refresh container status.
-    ?                    | Toggle help.
+  	DockerTools Default | Mapping Dict Key    | Details
+    ------------------- | ------------------- | ------------------------------
+    s                   | container-start     | Start container.
+    S                   | container-stop      | Stop container.
+    R                   | container-restart   | Restart container.
+    d                   | container-delete    | Delete container.
+    p                   | container-pause     | Pause container.
+    P                   | container-unpause   | Unpause container.
+    !                   | container-execute   | Execute command to container.
+    <CR>                | container-show-logs | Show container logs.
+    a                   | ui-toggle-all       | Toggle show all/running containers.
+    ?                   | ui-toggle-help      | Toggle help.
+    f                   | ui-filter           | Set container filters.
+    r                   | ui-reload           | Refresh container status.
+    q                   | ui-close            | Close current DockerTools window.
 
 ================================================================================
 SETTINGS                                                 *docker-tools-settings*
@@ -214,6 +215,17 @@ The filter to use when displaying containers. Default value: ''
 >
   let g:dockertools_ps_filter = 'name=my_container'
 <
+
+                                                   *'g:dockertools_user_key_mapping'*
+
+A dictionary of key mapping used to override the default settings. Default value: unset
+>
+  let g:dockertools_user_key_mapping = {'ui_filter' : 'F'}
+<
+
+See |docker-tools-mapping| for a list of valid keys, and their default
+settings.
+
 
 ================================================================================
 CONTRIBUTING                                         *docker-tools-contributing*
