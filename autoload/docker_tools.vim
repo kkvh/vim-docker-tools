@@ -214,10 +214,10 @@ endfunction
 
 function! docker_tools#container_logs(id,...) abort
 	silent execute printf("botright %d split %s_LOGS",g:dockertools_logs_size,a:id)
-	setlocal buftype=nofile bufhidden=delete cursorline nobuflisted
-	nnoremap <buffer> <silent> q :quit<CR>
 	silent execute printf("read ! %s%s container logs %s %s",s:sudo_mode(),g:dockertools_docker_cmd,join(a:000,' '),a:id)
 	silent 1d
+	setlocal buftype=nofile bufhidden=delete cursorline nobuflisted readonly nomodifiable
+	nnoremap <buffer> <silent> q :quit<CR>
 endfunction
 "}}}
 "container functions{{{
