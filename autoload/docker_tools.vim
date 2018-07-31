@@ -1,6 +1,6 @@
 "docker tools controls{{{
 function! docker_tools#dt_open() abort
-	if !exists('g:vdocker_windowid')
+	if !exists('g:dockertools_winid')
 		silent execute printf("topleft %s split DOCKER",g:dockertools_size)
 		silent topleft
 		let b:show_help = 0
@@ -8,18 +8,18 @@ function! docker_tools#dt_open() abort
 		setlocal buftype=nofile cursorline filetype=docker-tools winfixheight bufhidden=delete readonly nobuflisted
 		call s:dt_ui_load()
 		silent 2
-		let g:vdocker_windowid = win_getid()
+		let g:dockertools_winid = win_getid()
 		autocmd BufWinLeave <buffer> call s:dt_unset_winid()
 		autocmd CursorHold <buffer> call s:dt_ui_load()
 		call s:dt_set_mapping()
 	else
-		call win_gotoid(g:vdocker_windowid)
+		call win_gotoid(g:dockertools_winid)
 	endif
 endfunction
 
 function! docker_tools#dt_close() abort
-	if exists('g:vdocker_windowid')
-		call win_gotoid(g:vdocker_windowid)
+	if exists('g:dockertools_winid')
+		call win_gotoid(g:dockertools_winid)
 		quit
 	endif
 endfunction
@@ -29,7 +29,7 @@ function! docker_tools#dt_reload() abort
 endfunction
 
 function! docker_tools#dt_toggle() abort
-	if !exists('g:vdocker_windowid')
+	if !exists('g:dockertools_winid')
 		call docker_tools#dt_open()
 	else
 		call docker_tools#dt_close()
@@ -60,7 +60,7 @@ function! docker_tools#dt_set_filter(filters) abort
 		let g:dockertools_ps_filter = ''
 	endif
 
-	if exists('g:vdocker_windowid')
+	if exists('g:dockertools_winid')
 		call s:dt_ui_load()
 	endif
 endfunction
@@ -103,9 +103,9 @@ endfunction
 "}}}
 "docker tools callbacks{{{
 function! docker_tools#action_cb(...) abort
-	if exists('g:vdocker_windowid')
+	if exists('g:dockertools_winid')
 		let a:current_windowid = win_getid()
-		call win_gotoid(g:vdocker_windowid)
+		call win_gotoid(g:dockertools_winid)
 		call s:dt_ui_load()
 		call win_gotoid(a:current_windowid)
 	endif
@@ -194,8 +194,8 @@ function! s:dt_get_help() abort
 endfunction
 
 function! s:dt_unset_winid() abort
-	if exists('g:vdocker_windowid')
-		unlet g:vdocker_windowid
+	if exists('g:dockertools_winid')
+		unlet g:dockertools_winid
 	endif
 endfunction
 
