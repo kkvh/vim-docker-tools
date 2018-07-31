@@ -32,9 +32,17 @@ else
 	call docker_tools#dt_set_host()
 endif
 
+if !exists('g:dockertools_ps_filter')
+	let g:dockertools_ps_filter = ''
+else
+	call docker_tools#dt_set_filter(g:dockertools_ps_filter)
+endif
+
 command! DockerToolsOpen call docker_tools#dt_open()
 command! DockerToolsClose call docker_tools#dt_close()
 command! DockerToolsToggle call docker_tools#dt_toggle()
+command! DockerToolsClearFilter call docker_tools#dt_set_filter('')
+command! -nargs=* DockerToolsSetFilter call docker_tools#dt_set_filter(<q-args>)
 command! -nargs=? DockerToolsSetHost call docker_tools#dt_set_host(<q-args>)
 command! -complete=customlist,docker_tools#complete -nargs=+ ContainerStart call docker_tools#container_action('start',<f-args>)
 command! -complete=customlist,docker_tools#complete -nargs=+ ContainerStop call docker_tools#container_action('stop',<f-args>)
