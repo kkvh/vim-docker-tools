@@ -139,19 +139,19 @@ function! s:dt_get_id() abort
 endfunction
 
 function! s:dt_set_mapping() abort
-		nnoremap <buffer> <silent> q :DockerToolsClose<CR>
-		nnoremap <buffer> <silent> s :call docker_tools#dt_action('start')<CR>
-		nnoremap <buffer> <silent> d :call docker_tools#dt_action('stop')<CR>
-		nnoremap <buffer> <silent> x :call docker_tools#dt_action('rm')<CR>
-		nnoremap <buffer> <silent> r :call docker_tools#dt_action('restart')<CR>
-		nnoremap <buffer> <silent> p :call docker_tools#dt_action('pause')<CR>
-		nnoremap <buffer> <silent> u :call docker_tools#dt_action('unpause')<CR>
-		nnoremap <buffer> <silent> > :call docker_tools#dt_run_command()<CR>
-		nnoremap <buffer> <silent> < :call docker_tools#dt_logs()<CR>
-		nnoremap <buffer> <silent> a :call docker_tools#dt_toggle_all()<CR>
-		nnoremap <buffer> <silent> R :call docker_tools#dt_reload()<CR>
-		nnoremap <buffer> <silent> ? :call docker_tools#dt_toggle_help()<CR>
-		nnoremap <buffer> <silent> f :call docker_tools#dt_ui_set_filter()<CR>
+	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-start'] . ' :call docker_tools#dt_action("start")<CR>'
+	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-stop'] . ' :call docker_tools#dt_action("stop")<CR>'
+	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-delete'] . ' :call docker_tools#dt_action("rm")<CR>'
+	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-restart'] . ' :call docker_tools#dt_action("restart")<CR>'
+	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-pause'] . ' :call docker_tools#dt_action("pause")<CR>'
+	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-unpause'] . ' :call docker_tools#dt_action("unpause")<CR>'
+	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-execute'] . ' :call docker_tools#dt_run_command()<CR>'
+	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-show-logs'] . ' :call docker_tools#dt_logs()<CR>'
+	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-close'] . ' :DockerToolsClose<CR>'
+	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-toggle-all'] . ' :call docker_tools#dt_toggle_all()<CR>'
+	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-reload'] . ' :call docker_tools#dt_reload()<CR>'
+	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-toggle-help'] . ' :call docker_tools#dt_toggle_help()<CR>'
+	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-filter'] . ' :call docker_tools#dt_ui_set_filter()<CR>'
 endfunction
 
 function! s:dt_ui_load() abort
@@ -177,18 +177,19 @@ endfunction
 function! s:dt_get_help() abort
 	let help = "# vim-docker-tools quickhelp\n"
 	let help .= "# ------------------------------------------------------------------------------\n"
-	let help .= "# f: set container filter\n"
-	let help .= "# s: start container\n"
-	let help .= "# d: stop container\n"
-	let help .= "# r: restart container\n"
-	let help .= "# x: delete container\n"
-	let help .= "# p: pause container\n"
-	let help .= "# u: unpause container\n"
-	let help .= "# >: execute command to container\n"
-	let help .= "# <: show container logs\n"
-	let help .= "# a: toggle show all/running containers\n"
-	let help .= "# R: refresh container status\n"
-	let help .= "# ?: toggle help\n"
+	let help .= "# " . g:dockertools_key_mapping['container-start'] . ": start container\n"
+	let help .= "# " . g:dockertools_key_mapping['container-stop'] . ": stop container\n"
+	let help .= "# " . g:dockertools_key_mapping['container-restart'] . ": restart container\n"
+	let help .= "# " . g:dockertools_key_mapping['container-delete'] . ": delete container\n"
+	let help .= "# " . g:dockertools_key_mapping['container-pause'] . ": pause container\n"
+	let help .= "# " . g:dockertools_key_mapping['container-unpause'] . ": unpause container\n"
+	let help .= "# " . g:dockertools_key_mapping['container-execute'] . ": execute command to container\n"
+	let help .= "# " . g:dockertools_key_mapping['container-show-logs'] . ": show container logs\n"
+	let help .= "# " . g:dockertools_key_mapping['ui-close'] . ": close vim-docker-tools\n"
+	let help .= "# " . g:dockertools_key_mapping['ui-filter'] . ": set container filter\n"
+	let help .= "# " . g:dockertools_key_mapping['ui-reload'] . ": refresh container status\n"
+	let help .= "# " . g:dockertools_key_mapping['ui-toggle-all'] . ": toggle show all/running containers\n"
+	let help .= "# " . g:dockertools_key_mapping['ui-toggle-help'] . ": toggle help\n"
 	let help .= "# ------------------------------------------------------------------------------\n"
 	silent! put =help
 endfunction
