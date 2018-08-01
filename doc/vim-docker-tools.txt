@@ -64,19 +64,6 @@ COMMANDS                                                 *docker-tools-commands*
 
     Set the host URL for the docker daemon.
 
-                                                           *:DockerToolsSetFilter*
-:DockerToolsSetFilter [filters]
-
-    Set the filters to be used when displaying containers. This follows the
-    same format as the filter flag used by the `docker ps` command.
-    An empty string will remove all currently active filters
-    Invalid filter keys will be dropped from the filter.
-
-                                                           *:DockerToolsClearFilter*
-:DockerToolsClearFilter [filters]
-
-    Clears the filter being used for displaying containers.
-
                                                                *:ContainerStart*
 :ContainerStart [container] [options]
 
