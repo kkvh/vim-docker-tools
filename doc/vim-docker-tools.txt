@@ -208,12 +208,6 @@ The prefix to use for the docker cli. Default value: docker
 >
   let g:dockertools_docker_cmd = 'docker'
 <
-                                                   *'g:dockertools_ps_filter'*
-
-The filter to use when displaying containers. Default value: ''
->
-  let g:dockertools_ps_filter = 'name=my_container'
-<
 
 ================================================================================
 CONTRIBUTING                                         *docker-tools-contributing*

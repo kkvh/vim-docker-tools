@@ -32,12 +32,6 @@ else
 	call docker_tools#dt_set_host()
 endif
 
-if !exists('g:dockertools_ps_filter')
-	let g:dockertools_ps_filter = ''
-else
-	call docker_tools#dt_set_filter(g:dockertools_ps_filter)
-endif
-
 command! DockerToolsOpen call docker_tools#dt_open()
 command! DockerToolsClose call docker_tools#dt_close()
 command! DockerToolsToggle call docker_tools#dt_toggle()

@@ -5,6 +5,9 @@ function! docker_tools#dt_open() abort
 		silent topleft
 		let b:show_help = 0
 		let b:show_all_containers = g:dockertools_default_all
+		if !exists('s:dockertools_ls_filter')
+			let s:dockertools_ls_filter = ''
+		endif
 		setlocal buftype=nofile cursorline filetype=docker-tools winfixheight bufhidden=delete readonly nobuflisted
 		call s:dt_ui_load()
 		silent 2
@@ -55,9 +58,9 @@ function! docker_tools#dt_set_filter(filters) abort
 			let l:filters = join([l:filters, '-f', l:ps_filter], ' ')
 		endif
 	endfor
-	let g:dockertools_ps_filter = l:filters
-	if '-f' == g:dockertools_ps_filter
-		let g:dockertools_ps_filter = ''
+	let s:dockertools_ls_filter = l:filters
+	if '-f' == s:dockertools_ls_filter
+		let s:dockertools_ls_filter = ''
 	endif
 
 	if exists('g:dockertools_winid')
@@ -167,7 +170,7 @@ function! s:dt_ui_load() abort
 		let b:first_row = 2
 	endif
 
-	silent! execute printf("read ! %s%s ps%s %s",s:sudo_mode(),g:dockertools_docker_cmd,['',' -a'][b:show_all_containers], g:dockertools_ps_filter)
+	silent! execute printf("read ! %s%s ps%s %s",s:sudo_mode(),g:dockertools_docker_cmd,['',' -a'][b:show_all_containers], s:dockertools_ls_filter)
 
 	silent 1d
 	call setpos('.', a:save_cursor)
