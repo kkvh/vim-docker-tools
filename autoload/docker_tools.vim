@@ -1,29 +1,28 @@
 "docker tools controls{{{
 function! docker_tools#dt_open() abort
-	if !exists('g:vdocker_windowid')
+	if !exists('g:dockertools_winid')
 		silent execute printf("topleft %s split DOCKER",g:dockertools_size)
 		silent topleft
 		let b:show_help = 0
 		let b:show_all_containers = g:dockertools_default_all
-		setlocal buftype=nofile
-		setlocal cursorline
-		setlocal filetype=docker-tools
-		setlocal winfixheight
+		if !exists('s:dockertools_ls_filter')
+			let s:dockertools_ls_filter = ''
+		endif
+		setlocal buftype=nofile cursorline filetype=docker-tools winfixheight bufhidden=delete readonly nobuflisted
 		call s:dt_ui_load()
 		silent 2
-		setlocal nobuflisted
-		let g:vdocker_windowid = win_getid()
+		let g:dockertools_winid = win_getid()
 		autocmd BufWinLeave <buffer> call s:dt_unset_winid()
 		autocmd CursorHold <buffer> call s:dt_ui_load()
 		call s:dt_set_mapping()
 	else
-		call win_gotoid(g:vdocker_windowid)
+		call win_gotoid(g:dockertools_winid)
 	endif
 endfunction
 
 function! docker_tools#dt_close() abort
-	if exists('g:vdocker_windowid')
-		call win_gotoid(g:vdocker_windowid)
+	if exists('g:dockertools_winid')
+		call win_gotoid(g:dockertools_winid)
 		quit
 	endif
 endfunction
@@ -33,7 +32,7 @@ function! docker_tools#dt_reload() abort
 endfunction
 
 function! docker_tools#dt_toggle() abort
-	if !exists('g:vdocker_windowid')
+	if !exists('g:dockertools_winid')
 		call docker_tools#dt_open()
 	else
 		call docker_tools#dt_close()
@@ -47,7 +46,6 @@ function! docker_tools#dt_set_host(...)
 		let g:dockertools_docker_cmd = 'docker'
 	endif
 endfunction
-
 "}}}
 "docker tools commands{{{
 function! docker_tools#dt_action(action) abort
@@ -78,12 +76,18 @@ function! docker_tools#dt_logs() abort
 		call docker_tools#container_logs(s:dt_get_id())
 	endif
 endfunction
+
+function! docker_tools#dt_ui_set_filter()
+	let l:filter = input("Enter Filter(s): ")
+	call s:dt_set_filter(l:filter)
+	call s:dt_ui_load()
+endfunction
 "}}}
 "docker tools callbacks{{{
 function! docker_tools#action_cb(...) abort
-	if exists('g:vdocker_windowid')
+	if exists('g:dockertools_winid')
 		let a:current_windowid = win_getid()
-		call win_gotoid(g:vdocker_windowid)
+		call win_gotoid(g:dockertools_winid)
 		call s:dt_ui_load()
 		call win_gotoid(a:current_windowid)
 	endif
@@ -129,6 +133,7 @@ function! s:dt_set_mapping() abort
 		nnoremap <buffer> <silent> a :call docker_tools#dt_toggle_all()<CR>
 		nnoremap <buffer> <silent> R :call docker_tools#dt_reload()<CR>
 		nnoremap <buffer> <silent> ? :call docker_tools#dt_toggle_help()<CR>
+		nnoremap <buffer> <silent> f :call docker_tools#dt_ui_set_filter()<CR>
 endfunction
 
 function! s:dt_ui_load() abort
@@ -144,7 +149,12 @@ function! s:dt_ui_load() abort
 		let b:first_row = 2
 	endif
 
-	silent! execute printf("read ! %s%s ps%s",s:sudo_mode(),g:dockertools_docker_cmd,['',' -a'][b:show_all_containers])
+	if s:dockertools_ls_filter != ''
+		silent! put ='Filter(s): '.s:dockertools_ls_filter
+		let b:first_row += 1
+	endif
+
+	silent! execute printf("read ! %s%s ps%s %s",s:sudo_mode(),g:dockertools_docker_cmd,['',' -a'][b:show_all_containers], s:dockertools_ls_filter)
 
 	silent 1d
 	call setpos('.', a:save_cursor)
@@ -163,6 +173,7 @@ function! s:dt_get_help() abort
 	let help .= "# >: execute command to container\n"
 	let help .= "# <: show container logs\n"
 	let help .= "# a: toggle show all/running containers\n"
+	let help .= "# f: set container filter\n"
 	let help .= "# R: refresh container status\n"
 	let help .= "# ?: toggle help\n"
 	let help .= "# ------------------------------------------------------------------------------\n"
@@ -170,8 +181,8 @@ function! s:dt_get_help() abort
 endfunction
 
 function! s:dt_unset_winid() abort
-	if exists('g:vdocker_windowid')
-		unlet g:vdocker_windowid
+	if exists('g:dockertools_winid')
+		unlet g:dockertools_winid
 	endif
 endfunction
 
@@ -182,6 +193,24 @@ function! s:dt_container_selected() abort
 	endif
 	return 1
 endfunction
+
+function! s:dt_set_filter(filters) abort
+	"validate the filter keys
+	"expect filters to be space delimited
+	"expect key value to be '=' delimited
+	if a:filters == ''
+		let s:dockertools_ls_filter = ''
+		return
+	endif
+	let l:filters = ''
+	for l:ps_filter in split(a:filters, ' ')
+		let l:filter_components = split(l:ps_filter, '=')
+		if index(s:container_filters, filter_components[0]) > -1
+			let l:filters = join([l:filters, '-f', l:ps_filter], ' ')
+		endif
+	endfor
+	let s:dockertools_ls_filter = l:filters
+endfunction
 "}}}
 "container commands{{{
 function! docker_tools#container_action(action,id,...) abort
@@ -190,12 +219,10 @@ endfunction
 
 function! docker_tools#container_logs(id,...) abort
 	silent execute printf("botright %d split %s_LOGS",g:dockertools_logs_size,a:id)
-	setlocal buftype=nofile
-	setlocal cursorline
-	setlocal nobuflisted
-	nnoremap <buffer> <silent> q :quit<CR>
 	silent execute printf("read ! %s%s container logs %s %s",s:sudo_mode(),g:dockertools_docker_cmd,join(a:000,' '),a:id)
 	silent 1d
+	setlocal buftype=nofile bufhidden=delete cursorline nobuflisted readonly nomodifiable
+	nnoremap <buffer> <silent> q :quit<CR>
 endfunction
 "}}}
 "container functions{{{
@@ -274,5 +301,8 @@ endfunction
 function! s:sudo_mode() abort
 	return ['','sudo '][g:dockertools_sudo_mode]
 endfunction
+"}}}
+"referral vars {{{
+let s:container_filters  = ['id', 'name', 'label', 'exited', 'status', 'ancestor', 'before', 'since', 'volume', 'network', 'publish', 'expose', 'health', 'isolation', 'is-task']
 "}}}
 " vim: fdm=marker:
