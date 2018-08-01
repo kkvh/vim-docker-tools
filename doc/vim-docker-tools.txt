@@ -104,7 +104,6 @@ MAPPINGS                                                 *docker-tools-mappings*
 
   	DockerTools Mapping  | Details
     ---------------------|----------------------------------------------
-    f                    | Set container filters.
     s                    | Start container.
     d                    | Stop container.
     r                    | Restart container.
@@ -114,6 +113,7 @@ MAPPINGS                                                 *docker-tools-mappings*
     >                    | Execute command to container.
     <                    | Show container logs.
     a                    | Toggle show all/running containers.
+    f                    | Set container filters.
     R                    | Refresh container status.
     ?                    | Toggle help.
 

@@ -46,27 +46,6 @@ function! docker_tools#dt_set_host(...)
 		let g:dockertools_docker_cmd = 'docker'
 	endif
 endfunction
-
-function! docker_tools#dt_set_filter(filters) abort
-	"validate the filter keys
-	"expect filters to be space delimited
-	"expect key value to be '=' delimited
-	let l:filters = ''
-	for l:ps_filter in split(a:filters, ' ')
-		let l:filter_components = split(l:ps_filter, '=')
-		if index(s:ps_filters, filter_components[0]) > -1
-			let l:filters = join([l:filters, '-f', l:ps_filter], ' ')
-		endif
-	endfor
-	let s:dockertools_ls_filter = l:filters
-	if '-f' == s:dockertools_ls_filter
-		let s:dockertools_ls_filter = ''
-	endif
-
-	if exists('g:dockertools_winid')
-		call s:dt_ui_load()
-	endif
-endfunction
 "}}}
 "docker tools commands{{{
 function! docker_tools#dt_action(action) abort
@@ -100,7 +79,7 @@ endfunction
 
 function! docker_tools#dt_ui_set_filter()
 	let l:filter = input("Enter Filter(s): ")
-	call docker_tools#dt_set_filter(l:filter)
+	call s:dt_set_filter(l:filter)
 	call s:dt_ui_load()
 endfunction
 "}}}
@@ -180,7 +159,6 @@ endfunction
 function! s:dt_get_help() abort
 	let help = "# vim-docker-tools quickhelp\n"
 	let help .= "# ------------------------------------------------------------------------------\n"
-	let help .= "# f: set container filter\n"
 	let help .= "# s: start container\n"
 	let help .= "# d: stop container\n"
 	let help .= "# r: restart container\n"
@@ -190,6 +168,7 @@ function! s:dt_get_help() abort
 	let help .= "# >: execute command to container\n"
 	let help .= "# <: show container logs\n"
 	let help .= "# a: toggle show all/running containers\n"
+	let help .= "# f: set container filter\n"
 	let help .= "# R: refresh container status\n"
 	let help .= "# ?: toggle help\n"
 	let help .= "# ------------------------------------------------------------------------------\n"
@@ -208,6 +187,24 @@ function! s:dt_container_selected() abort
 		return 0
 	endif
 	return 1
+endfunction
+
+function! s:dt_set_filter(filters) abort
+	"validate the filter keys
+	"expect filters to be space delimited
+	"expect key value to be '=' delimited
+	if a:filters == ''
+		let s:dockertools_ls_filter = ''
+		return
+	endif
+	let l:filters = ''
+	for l:ps_filter in split(a:filters, ' ')
+		let l:filter_components = split(l:ps_filter, '=')
+		if index(s:container_filters, filter_components[0]) > -1
+			let l:filters = join([l:filters, '-f', l:ps_filter], ' ')
+		endif
+	endfor
+	let s:dockertools_ls_filter = l:filters
 endfunction
 "}}}
 "container commands{{{
@@ -300,7 +297,7 @@ function! s:sudo_mode() abort
 	return ['','sudo '][g:dockertools_sudo_mode]
 endfunction
 "}}}
-"referal vars {{{
-let s:ps_filters  = ['id', 'name', 'label', 'exited', 'status', 'ancestor', 'before', 'since', 'volume', 'network', 'publish', 'expose', 'health', 'isolation', 'is-task']
+"referral vars {{{
+let s:container_filters  = ['id', 'name', 'label', 'exited', 'status', 'ancestor', 'before', 'since', 'volume', 'network', 'publish', 'expose', 'health', 'isolation', 'is-task']
 "}}}
 " vim: fdm=marker:
