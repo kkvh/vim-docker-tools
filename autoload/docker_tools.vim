@@ -149,6 +149,11 @@ function! s:dt_ui_load() abort
 		let b:first_row = 2
 	endif
 
+	if s:dockertools_ls_filter != ''
+		silent! put ='Filter(s): '.s:dockertools_ls_filter
+		let b:first_row += 1
+	endif
+
 	silent! execute printf("read ! %s%s ps%s %s",s:sudo_mode(),g:dockertools_docker_cmd,['',' -a'][b:show_all_containers], s:dockertools_ls_filter)
 
 	silent 1d
