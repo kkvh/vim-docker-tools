@@ -8,7 +8,7 @@ function! docker_tools#dt_open() abort
 		if !exists('s:dockertools_ls_filter')
 			let s:dockertools_ls_filter = ''
 		endif
-		setlocal buftype=nofile cursorline filetype=docker-tools winfixheight bufhidden=delete readonly nobuflisted
+		setlocal buftype=nofile cursorline filetype=docker-tools winfixheight bufhidden=delete readonly nobuflisted noswapfile
 		call s:dt_ui_load()
 		silent 2
 		let g:dockertools_winid = win_getid()
@@ -221,7 +221,7 @@ function! docker_tools#container_logs(id,...) abort
 	silent execute printf("botright %d split %s_LOGS",g:dockertools_logs_size,a:id)
 	silent execute printf("read ! %s%s container logs %s %s",s:sudo_mode(),g:dockertools_docker_cmd,join(a:000,' '),a:id)
 	silent 1d
-	setlocal buftype=nofile bufhidden=delete cursorline nobuflisted readonly nomodifiable
+	setlocal buftype=nofile bufhidden=delete cursorline nobuflisted readonly nomodifiable noswapfile
 	nnoremap <buffer> <silent> q :quit<CR>
 endfunction
 "}}}
