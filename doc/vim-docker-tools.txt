@@ -102,7 +102,7 @@ COMMANDS                                                 *docker-tools-commands*
 ================================================================================
 MAPPINGS                                                 *docker-tools-mappings*
 
-  	DockerTools Default | Mapping Dict Key    | Details
+    DockerTools Default | Mapping Dict Key    | Details
     ------------------- | ------------------- | ------------------------------
     s                   | container-start     | Start container.
     d                   | container-stop      | Stop container.
