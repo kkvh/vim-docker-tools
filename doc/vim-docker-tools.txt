@@ -102,20 +102,22 @@ COMMANDS                                                 *docker-tools-commands*
 ================================================================================
 MAPPINGS                                                 *docker-tools-mappings*
 
-  	DockerTools Mapping  | Details
-    ---------------------|----------------------------------------------
-    s                    | Start container.
-    d                    | Stop container.
-    r                    | Restart container.
-    x                    | Delete container.
-    p                    | Pause container.
-    u                    | Unpause container.
-    >                    | Execute command to container.
-    <                    | Show container logs.
-    a                    | Toggle show all/running containers.
-    f                    | Set container filters.
-    R                    | Refresh container status.
-    ?                    | Toggle help.
+    DockerTools Default | Mapping Dict Key    | Details
+    ------------------- | ------------------- | ------------------------------
+    s                   | container-start     | Start container.
+    d                   | container-stop      | Stop container.
+    r                   | container-restart   | Restart container.
+    x                   | container-delete    | Delete container.
+    p                   | container-pause     | Pause container.
+    u                   | container-unpause   | Unpause container.
+    >                   | container-execute   | Execute command to container.
+    <                   | container-show-logs | Show container logs.
+    a                   | ui-toggle-all       | Toggle show all/running 
+                                                containers.
+    f                   | ui-filter           | Set container filters.
+    R                   | ui-reload           | Refresh container status.
+    q                   | ui-close            | Close DockerTools window.
+    ?                   | ui-toggle-help      | Toggle help.
 
 ================================================================================
 SETTINGS                                                 *docker-tools-settings*
@@ -195,6 +197,17 @@ The prefix to use for the docker cli. Default value: docker
 >
   let g:dockertools_docker_cmd = 'docker'
 <
+
+                                                   *'g:dockertools_user_key_mapping'*
+
+A dictionary of key mapping used to override the default settings. Default value: unset
+>
+  let g:dockertools_user_key_mapping = {'ui_filter' : 'F'}
+<
+
+See |docker-tools-mapping| for a list of valid keys, and their default
+settings.
+
 
 ================================================================================
 CONTRIBUTING                                         *docker-tools-contributing*

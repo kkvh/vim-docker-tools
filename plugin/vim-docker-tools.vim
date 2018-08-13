@@ -1,3 +1,5 @@
+let s:default_key_mapping = {'container-start' : 's', 'container-stop' : 'd', 'container-restart' : 'r', 'container-delete' : 'x', 'container-pause' : 'p', 'container-unpause' : 'u', 'container-execute' : '>', 'container-show-logs' : '<', 'ui-toggle-all' : 'a', 'ui-reload' : 'R', 'ui-close' : 'q', 'ui-toggle-help' : '?', 'ui-filter' : 'f'}
+
 if !exists('g:dockertools_size')
 	let g:dockertools_size = 15
 endif
@@ -30,6 +32,12 @@ if exists('g:dockertools_docker_host')
 	call docker_tools#dt_set_host(g:dockertools_docker_host)
 else
 	call docker_tools#dt_set_host()
+endif
+
+if exists('g:dockertools_user_key_mapping')
+	let g:dockertools_key_mapping = extend(s:default_key_mapping, g:dockertools_user_key_mapping) 
+else
+	let g:dockertools_key_mapping = s:default_key_mapping
 endif
 
 command! DockerToolsOpen call docker_tools#dt_open()
