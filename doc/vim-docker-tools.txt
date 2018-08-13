@@ -64,19 +64,6 @@ COMMANDS                                                 *docker-tools-commands*
 
     Set the host URL for the docker daemon.
 
-                                                           *:DockerToolsSetFilter*
-:DockerToolsSetFilter [filters]
-
-    Set the filters to be used when displaying containers. This follows the
-    same format as the filter flag used by the `docker ps` command.
-    An empty string will remove all currently active filters
-    Invalid filter keys will be dropped from the filter.
-
-                                                           *:DockerToolsClearFilter*
-:DockerToolsClearFilter [filters]
-
-    Clears the filter being used for displaying containers.
-
                                                                *:ContainerStart*
 :ContainerStart [container] [options]
 
@@ -113,23 +100,24 @@ COMMANDS                                                 *docker-tools-commands*
 	  Show container logs.
 
 ================================================================================
-Mapping                                                   *docker-tools-mapping*
+MAPPINGS                                                 *docker-tools-mappings*
 
   	DockerTools Default | Mapping Dict Key    | Details
     ------------------- | ------------------- | ------------------------------
     s                   | container-start     | Start container.
-    S                   | container-stop      | Stop container.
-    R                   | container-restart   | Restart container.
-    d                   | container-delete    | Delete container.
+    d                   | container-stop      | Stop container.
+    r                   | container-restart   | Restart container.
+    x                   | container-delete    | Delete container.
     p                   | container-pause     | Pause container.
-    P                   | container-unpause   | Unpause container.
-    !                   | container-execute   | Execute command to container.
-    <CR>                | container-show-logs | Show container logs.
-    a                   | ui-toggle-all       | Toggle show all/running containers.
-    ?                   | ui-toggle-help      | Toggle help.
+    u                   | container-unpause   | Unpause container.
+    >                   | container-execute   | Execute command to container.
+    <                   | container-show-logs | Show container logs.
+    a                   | ui-toggle-all       | Toggle show all/running 
+                                                containers.
     f                   | ui-filter           | Set container filters.
-    r                   | ui-reload           | Refresh container status.
-    q                   | ui-close            | Close current DockerTools window.
+    R                   | ui-reload           | Refresh container status.
+    q                   | ui-close            | Close DockerTools window.
+    ?                   | ui-toggle-help      | Toggle help.
 
 ================================================================================
 SETTINGS                                                 *docker-tools-settings*
@@ -208,12 +196,6 @@ host string provided
 The prefix to use for the docker cli. Default value: docker
 >
   let g:dockertools_docker_cmd = 'docker'
-<
-                                                   *'g:dockertools_ps_filter'*
-
-The filter to use when displaying containers. Default value: ''
->
-  let g:dockertools_ps_filter = 'name=my_container'
 <
 
                                                    *'g:dockertools_user_key_mapping'*

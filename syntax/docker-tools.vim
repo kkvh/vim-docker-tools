@@ -4,6 +4,7 @@ endif
 
 syn match VDKeyword /\v(CONTAINER ID|IMAGE|COMMAND|CREATED|STATUS|PORTS|NAMES)/
 syn match VDQuickHelp /\v#.*$/
+syn match VDFilter /\vFilter\(s\): .*$/
 syn match VDContainerID /\v[a-zA-Z0-9]{12}/ containedin=VDContainer
 syn region VDContainerCommand start=/\v"/ skip=/\v\\./ end=/\v"/ containedin=VDContainer
 syn match VDContainerName /\s\S*$/ containedin=VDContainer contained
@@ -13,6 +14,7 @@ syn match VDPausedContainer /\v[a-zA-Z0-9]{12}.*(Paused).*$/
 
 hi def link VDKeyword Keyword
 hi def link VDQuickHelp Constant
+hi def link VDFilter Tag
 
 hi def link VDContainerID Identifier
 hi def link VDContainerCommand Function
