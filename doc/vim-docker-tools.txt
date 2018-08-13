@@ -7,7 +7,7 @@ CONTENTS                                                 *docker-tools-contents*
   1. Intro........................................|docker-tools-intro|
   2. Install......................................|docker-tools-install|
   3. Commands.....................................|docker-tools-commands|
-  4. Mapping......................................|docker-tools-mapping|
+  4. Mappings.....................................|docker-tools-mappings|
   5. Settings.....................................|docker-tools-settings|
   6. Contributing.................................|docker-tools-contributing|
 
