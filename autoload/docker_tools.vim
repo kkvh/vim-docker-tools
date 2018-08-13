@@ -290,7 +290,7 @@ endfunction
 function! s:term_win_open(command,termname) abort
 	if has('nvim')
 		silent execute printf("botright %d split TERM",g:dockertools_term_size)
-		call termopen(a:command)
+		call termopen(a:command, {"on_exit":{-> execute("$")}})
 	elseif has('terminal')
 		silent execute printf("botright %d split TERM",g:dockertools_term_size)
 		call term_start(a:command,{"term_finish":['open','close'][g:dockertools_term_closeonexit],"term_name":a:termname,"curwin":"1"})
