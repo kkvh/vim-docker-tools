@@ -172,10 +172,10 @@ function! s:dt_get_help() abort
 	let help .= "# " . g:dockertools_key_mapping['container-unpause'] . ": unpause container\n"
 	let help .= "# " . g:dockertools_key_mapping['container-execute'] . ": execute command to container\n"
 	let help .= "# " . g:dockertools_key_mapping['container-show-logs'] . ": show container logs\n"
-  let help .= "# " . g:dockertools_key_mapping['ui-toggle-all'] . ": toggle show all/running containers\n"
+	let help .= "# " . g:dockertools_key_mapping['ui-toggle-all'] . ": toggle show all/running containers\n"
 	let help .= "# " . g:dockertools_key_mapping['ui-filter'] . ": set container filter\n"
 	let help .= "# " . g:dockertools_key_mapping['ui-reload'] . ": refresh container status\n"
-  let help .= "# " . g:dockertools_key_mapping['ui-close'] . ": close vim-docker-tools\n"
+	let help .= "# " . g:dockertools_key_mapping['ui-close'] . ": close vim-docker-tools\n"
 	let help .= "# " . g:dockertools_key_mapping['ui-toggle-help'] . ": toggle help\n"
 	let help .= "# ------------------------------------------------------------------------------\n"
 	silent! put =help
