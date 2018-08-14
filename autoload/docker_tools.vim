@@ -2,7 +2,6 @@
 function! docker_tools#dt_open() abort
 	if !exists('g:dockertools_winid')
 		silent execute printf("topleft %s split DOCKER",g:dockertools_size)
-		silent topleft
 		let b:show_help = 0
 		let b:show_all_containers = g:dockertools_default_all
 		if !exists('s:dockertools_ls_filter')
@@ -85,6 +84,11 @@ endfunction
 "}}}
 "docker tools callbacks{{{
 function! docker_tools#action_cb(...) abort
+	if has('nvim')
+		if a:2[0] ==# ''
+			return
+		endif
+	endif
 	if exists('g:dockertools_winid')
 		let a:current_windowid = win_getid()
 		call win_gotoid(g:dockertools_winid)
@@ -100,6 +104,9 @@ endfunction
 
 function! docker_tools#err_cb(...) abort
 	if has('nvim')
+		if a:2[0] ==# ''
+			return
+		endif
 		call s:echo_error(a:2[0])
 	else
 		call s:echo_error(a:2)
