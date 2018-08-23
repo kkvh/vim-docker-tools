@@ -23,4 +23,4 @@ hi def link VDContainer String
 hi def link VDExitedContainer Comment
 hi def link VDPausedContainer Constant
 
-let b:current_syntax = 'docker-tools'
+let b:current_syntax = 'docker-tools-container'

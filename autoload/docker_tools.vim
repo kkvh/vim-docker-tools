@@ -7,7 +7,7 @@ function! docker_tools#dt_open() abort
 		if !exists('s:dockertools_ls_filter')
 			let s:dockertools_ls_filter = ''
 		endif
-		setlocal buftype=nofile cursorline filetype=docker-tools winfixheight bufhidden=delete readonly nobuflisted noswapfile
+		setlocal buftype=nofile cursorline filetype=docker-tools-container winfixheight bufhidden=delete readonly nobuflisted noswapfile
 		call s:dt_ui_load()
 		silent 2
 		let g:dockertools_winid = win_getid()
