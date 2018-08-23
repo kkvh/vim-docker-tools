@@ -219,6 +219,10 @@ function! s:dt_set_filter(filters) abort
 	endfor
 	let s:dockertools_ls_filter = l:filters
 endfunction
+
+function! s:dt_do(containerid) abort dict
+	let cmd = printf("%s %s %s %s %s %s",s:sudo_mode(),g:dockertools_docker_cmd,self.scope,self.command,self.options,a:containerid)
+endfunction
 "}}}
 "container commands{{{
 function! docker_tools#container_action(action,id,...) abort
@@ -226,11 +230,7 @@ function! docker_tools#container_action(action,id,...) abort
 endfunction
 
 function! docker_tools#container_logs(id,...) abort
-	silent execute printf("botright %d split %s_LOGS",g:dockertools_logs_size,a:id)
-	silent execute printf("read ! %s%s container logs %s %s",s:sudo_mode(),g:dockertools_docker_cmd,join(a:000,' '),a:id)
-	silent 1d
-	setlocal buftype=nofile bufhidden=delete cursorline nobuflisted readonly nomodifiable noswapfile
-	nnoremap <buffer> <silent> q :quit<CR>
+	call s:export_mode(printf("%s%s container logs %s %s",s:sudo_mode(),g:dockertools_docker_cmd,join(a:000,' '),a:id),a:id."_LOGS","botright",g:dockertools_logs_size)
 endfunction
 "}}}
 "container functions{{{
@@ -243,13 +243,7 @@ endfunction
 
 function! s:container_action_run(action,id,options) abort
 	call s:echo_container_action_msg(a:action,a:id)
-	if has('nvim')
-		call jobstart(printf('%s%s container %s %s %s',s:sudo_mode(),g:dockertools_docker_cmd,a:action,a:options,a:id),{'on_stdout': 'docker_tools#action_cb','on_stderr': 'docker_tools#err_cb'})
-	elseif has('job') && !g:dockertools_disable_job
-		call job_start(printf('%s%s container %s %s %s',s:sudo_mode(),g:dockertools_docker_cmd,a:action,a:options,a:id),{'out_cb': 'docker_tools#action_cb','err_cb': 'docker_tools#err_cb'})
-	else
-		call system(printf('%s%s container %s %s %s',s:sudo_mode(),g:dockertools_docker_cmd,a:action,a:options,shellescape(a:id)))
-	endif
+	call s:execute_mode(printf('%s%s container %s %s %s',s:sudo_mode(),g:dockertools_docker_cmd,a:action,a:options,a:id),'docker_tools#action_cb','docker_tools#err_cb')
 endfunction
 
 function! s:echo_container_action_msg(action,id) abort
@@ -303,6 +297,37 @@ function! s:term_win_open(command,termname) abort
 		call term_start(a:command,{"term_finish":['open','close'][g:dockertools_term_closeonexit],"term_name":a:termname,"curwin":"1"})
 	else
 		call s:echo_error('terminal is not supported')
+	endif
+endfunction
+
+function! s:interactive_mode(command,termname,position,size) abort
+	if has('nvim')
+		silent execute printf("%s %d split TERM",a:position,a:size)
+		call termopen(a:command, {"on_exit":{-> execute("$")}})
+	elseif has('terminal')
+		silent execute printf("botright %d split TERM",g:dockertools_term_size)
+		setlocal buftype=nofile bufhidden=delete nobuflisted noswapfile
+		call term_start(a:command,{"term_finish":['open','close'][g:dockertools_term_closeonexit],"term_name":a:termname,"curwin":"1"})
+	else
+		call s:echo_error('terminal is not supported')
+	endif
+endfunction
+
+function! s:export_mode(command,winname,position,size) abort
+	silent execute printf("%s %d split %s",a:position,a:size,a:winname)
+	silent execute printf("read ! %s",a:command)
+	silent 1d
+	setlocal buftype=nofile bufhidden=delete cursorline nobuflisted readonly nomodifiable noswapfile
+	nnoremap <buffer> <silent> q :quit<CR>
+endfunction
+
+function! s:execute_mode(command,out_cb,err_cb) abort
+	if has('nvim')
+		call jobstart(a:command,{'on_stdout': a:out_cb,'on_stderr': a:err_cb})
+	elseif has('job') && !g:dockertools_disable_job
+		call job_start(a:command,{'out_cb': a:out_cb,'err_cb': a:err_cb})
+	else
+		call system(a:command)
 	endif
 endfunction
 
