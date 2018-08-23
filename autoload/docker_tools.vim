@@ -4,10 +4,14 @@ function! docker_tools#dt_open() abort
 		silent execute printf("topleft %s split DOCKER",g:dockertools_size)
 		let b:show_help = 0
 		let b:show_all_containers = g:dockertools_default_all
+		if !exists('s:dockertools_scope')
+			let s:dockertools_scope = g:dockertools_default_scope
+		endif
 		if !exists('s:dockertools_ls_filter')
 			let s:dockertools_ls_filter = ''
 		endif
-		setlocal buftype=nofile cursorline filetype=docker-tools-container winfixheight bufhidden=delete readonly nobuflisted noswapfile
+		setlocal buftype=nofile cursorline winfixheight bufhidden=delete readonly nobuflisted noswapfile
+		execute printf("setlocal filetype=docker-tools-%s",s:dockertools_scope)
 		call s:dt_ui_load()
 		silent 2
 		let g:dockertools_winid = win_getid()
@@ -161,7 +165,7 @@ function! s:dt_ui_load() abort
 		let b:first_row += 1
 	endif
 
-	silent! execute printf("read ! %s%s ps%s %s",s:sudo_mode(),g:dockertools_docker_cmd,['',' -a'][b:show_all_containers], s:dockertools_ls_filter)
+	silent! execute printf("read ! %s%s %s ls %s %s",s:sudo_mode(),g:dockertools_docker_cmd,s:dockertools_scope,['','-a'][b:show_all_containers&&s:dockertools_scope!="network"], s:dockertools_ls_filter)
 
 	silent 1d
 	call setpos('.', a:save_cursor)
@@ -332,7 +336,7 @@ function! s:execute_mode(command,out_cb,err_cb) abort
 endfunction
 
 function! s:sudo_mode() abort
-	return ['','sudo '][g:dockertools_sudo_mode]
+	return ['', 'sudo '][g:dockertools_sudo_mode]
 endfunction
 "}}}
 "referral vars {{{

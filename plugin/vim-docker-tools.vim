@@ -20,6 +20,10 @@ if !exists('g:dockertools_default_all')
 	let g:dockertools_default_all = 1
 endif
 
+if !exists('g:dockertools_default_scope')
+	let g:dockertools_default_scope = 'container'
+endif
+
 if !exists('g:dockertools_sudo_mode')
 	let g:dockertools_sudo_mode = 0
 endif
