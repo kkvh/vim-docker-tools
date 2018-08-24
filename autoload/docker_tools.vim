@@ -5,13 +5,16 @@ function! docker_tools#dt_open() abort
 		let b:show_help = 0
 		let b:show_all_containers = g:dockertools_default_all
 		if !exists('s:dockertools_scope')
-			let s:dockertools_scope = g:dockertools_default_scope
+			let s:dockertools_scope = index(s:docker_scope, g:dockertools_default_scope)
+			if s:dockertools_scope == -1
+				let s:dockertools_scope = 0
+			endif
 		endif
 		if !exists('s:dockertools_ls_filter')
 			let s:dockertools_ls_filter = ''
 		endif
 		setlocal buftype=nofile cursorline winfixheight bufhidden=delete readonly nobuflisted noswapfile
-		execute printf("setlocal filetype=docker-tools-%s",s:dockertools_scope)
+		execute printf("setlocal filetype=docker-tools-%s", s:docker_scope[s:dockertools_scope])
 		call s:dt_ui_load()
 		silent 2
 		let g:dockertools_winid = win_getid()
@@ -48,6 +51,12 @@ function! docker_tools#dt_set_host(...)
 	else
 		let g:dockertools_docker_cmd = 'docker'
 	endif
+endfunction
+
+function! docker_tools#dt_swap(i)
+	let s:dockertools_scope = (s:dockertools_scope+a:i)%len(s:docker_scope)
+	call s:dt_ui_load()
+	execute printf("setlocal filetype=docker-tools-%s", s:docker_scope[s:dockertools_scope])
 endfunction
 "}}}
 "docker tools commands{{{
@@ -165,7 +174,7 @@ function! s:dt_ui_load() abort
 		let b:first_row += 1
 	endif
 
-	silent! execute printf("read ! %s%s %s ls %s %s",s:sudo_mode(),g:dockertools_docker_cmd,s:dockertools_scope,['','-a'][b:show_all_containers&&s:dockertools_scope!="network"], s:dockertools_ls_filter)
+	silent! execute printf("read ! %s%s %s ls %s %s",s:sudo_mode(),g:dockertools_docker_cmd,s:docker_scope[s:dockertools_scope],['','-a'][b:show_all_containers&&s:dockertools_scope!=2], s:dockertools_ls_filter)
 
 	silent 1d
 	call setpos('.', a:save_cursor)
@@ -341,5 +350,6 @@ endfunction
 "}}}
 "referral vars {{{
 let s:container_filters  = ['id', 'name', 'label', 'exited', 'status', 'ancestor', 'before', 'since', 'volume', 'network', 'publish', 'expose', 'health', 'isolation', 'is-task']
+let s:docker_scope = ['container', 'image', 'network']
 "}}}
 " vim: fdm=marker:
