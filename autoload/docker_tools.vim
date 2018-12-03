@@ -14,8 +14,7 @@ function! docker_tools#dt_open() abort
 			let s:dockertools_ls_filter = ''
 		endif
 		setlocal buftype=nofile cursorline winfixheight bufhidden=delete readonly nobuflisted noswapfile
-		execute printf("setlocal filetype=docker-tools-%s", s:docker_scope[s:dockertools_scope])
-		call s:dt_ui_load()
+		call s:dt_switch_panel()
 		silent 2
 		let g:dockertools_winid = win_getid()
 		autocmd BufWinLeave <buffer> call s:dt_unset_winid()
@@ -55,8 +54,12 @@ endfunction
 
 function! docker_tools#dt_swap(i)
 	let s:dockertools_scope = (s:dockertools_scope+a:i)%len(s:docker_scope)
-	call s:dt_ui_load()
-	execute printf("setlocal filetype=docker-tools-%s", s:docker_scope[s:dockertools_scope])
+	call s:dt_switch_panel()
+endfunction
+
+function! docker_tools#dt_go(i)
+	let s:dockertools_scope = a:i
+	call s:dt_switch_panel()
 endfunction
 "}}}
 "docker tools commands{{{
@@ -154,6 +157,11 @@ function! s:dt_set_mapping() abort
 	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-reload'] . ' :call docker_tools#dt_reload()<CR>'
 	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-toggle-help'] . ' :call docker_tools#dt_toggle_help()<CR>'
 	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-filter'] . ' :call docker_tools#dt_ui_set_filter()<CR>'
+	nnoremap <buffer> <silent> <leader>> :call docker_tools#dt_swap(1)<CR>
+	nnoremap <buffer> <silent> <leader>< :call docker_tools#dt_swap(-1)<CR>
+	nnoremap <buffer> <silent> <leader>1 :call docker_tools#dt_go(0)<CR>
+	nnoremap <buffer> <silent> <leader>2 :call docker_tools#dt_go(1)<CR>
+	nnoremap <buffer> <silent> <leader>3 :call docker_tools#dt_go(2)<CR>
 endfunction
 
 function! s:dt_ui_load() abort
@@ -235,6 +243,11 @@ endfunction
 
 function! s:dt_do(containerid) abort dict
 	let cmd = printf("%s %s %s %s %s %s",s:sudo_mode(),g:dockertools_docker_cmd,self.scope,self.command,self.options,a:containerid)
+endfunction
+
+function! s:dt_switch_panel()
+	call s:dt_ui_load()
+	execute printf("setlocal filetype=docker-tools-%s", s:docker_scope[s:dockertools_scope])
 endfunction
 "}}}
 "container commands{{{
@@ -346,6 +359,23 @@ endfunction
 
 function! s:sudo_mode() abort
 	return ['', 'sudo '][g:dockertools_sudo_mode]
+endfunction
+
+function! docker_tools#normal_type() abort dict
+	call self.run()
+endfunction
+
+function! docker_tools#confirm_type() abort dict
+	if confirm(self.confirm_msg, "&yes\n&no") == 1
+		call self.run()
+	endif
+endfunction
+
+function! docker_tools#input_type() abort dict
+	let input_ctx = input(self.input_msg)
+	if input_ctx != ''
+		call self.run(input_ctx)
+	endif
 endfunction
 "}}}
 "referral vars {{{
