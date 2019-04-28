@@ -86,10 +86,10 @@ endfunction
 "docker tools callbacks{{{
 function! docker_tools#action_cb(...) abort
 	if exists('g:dockertools_winid')
-		let a:current_windowid = win_getid()
+		let current_windowid = win_getid()
 		call win_gotoid(g:dockertools_winid)
 		call s:dt_ui_load()
-		call win_gotoid(a:current_windowid)
+		call win_gotoid(current_windowid)
 	endif
 	if has('nvim')
 		call s:echo_msg(a:2[0])
@@ -108,15 +108,15 @@ endfunction
 "}}}
 "docker tools functions{{{
 function! s:dt_get_id() abort
-	let a:row_num = getcurpos()[1]
+	let row_num = getcurpos()[1]
 	call search("CONTAINER ID")
-	let a:current_cursor = getcurpos()
-	if a:current_cursor[1] !=# b:first_row
+	let current_cursor = getcurpos()
+	if current_cursor[1] !=# b:first_row
 		call s:echo_error("No container ID found")
 		return ""
 	endif
-	let a:current_cursor[1] = a:row_num
-	call setpos('.', a:current_cursor)
+	let current_cursor[1] = row_num
+	call setpos('.', current_cursor)
 	return expand('<cWORD>')
 endfunction
 
@@ -138,7 +138,7 @@ endfunction
 
 function! s:dt_ui_load() abort
 	setlocal modifiable
-	let a:save_cursor = getcurpos()
+	let save_cursor = getcurpos()
 	silent 1,$d
 	if b:show_help
 		call s:dt_get_help()
@@ -157,7 +157,7 @@ function! s:dt_ui_load() abort
 	silent! execute printf("read ! %s%s ps%s %s",s:sudo_mode(),g:dockertools_docker_cmd,['',' -a'][b:show_all_containers], s:dockertools_ls_filter)
 
 	silent 1d
-	call setpos('.', a:save_cursor)
+	call setpos('.', save_cursor)
 	setlocal nomodifiable
 endfunction
 
@@ -187,8 +187,8 @@ function! s:dt_unset_winid() abort
 endfunction
 
 function! s:dt_container_selected() abort
-	let a:row_num = getcurpos()[1]
-	if a:row_num <=# b:first_row
+	let row_num = getcurpos()[1]
+	if row_num <=# b:first_row
 		return 0
 	endif
 	return 1
