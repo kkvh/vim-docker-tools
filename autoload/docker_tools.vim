@@ -106,10 +106,10 @@ function! docker_tools#action_cb(...) abort
 		endif
 	endif
 	if exists('g:dockertools_winid')
-		let a:current_windowid = win_getid()
+		let l:current_windowid = win_getid()
 		call win_gotoid(g:dockertools_winid)
 		call s:dt_ui_load()
-		call win_gotoid(a:current_windowid)
+		call win_gotoid(l:current_windowid)
 	endif
 	if has('nvim')
 		call s:echo_msg(a:2[0])
@@ -131,15 +131,15 @@ endfunction
 "}}}
 "docker tools functions{{{
 function! s:dt_get_id() abort
-	let a:row_num = getcurpos()[1]
+	let l:row_num = getcurpos()[1]
 	call search("CONTAINER ID")
-	let a:current_cursor = getcurpos()
-	if a:current_cursor[1] !=# b:first_row
+	let l:current_cursor = getcurpos()
+	if l:current_cursor[1] !=# b:first_row
 		call s:echo_error("No container ID found")
 		return ""
 	endif
-	let a:current_cursor[1] = a:row_num
-	call setpos('.', a:current_cursor)
+	let l:current_cursor[1] = l:row_num
+	call setpos('.', l:current_cursor)
 	return expand('<cWORD>')
 endfunction
 
@@ -166,7 +166,7 @@ endfunction
 
 function! s:dt_ui_load() abort
 	setlocal modifiable
-	let a:save_cursor = getcurpos()
+	let l:save_cursor = getcurpos()
 	silent 1,$d
 	if b:show_help
 		call s:dt_get_help()
@@ -185,7 +185,7 @@ function! s:dt_ui_load() abort
 	silent! execute printf("read ! %s%s %s ls %s %s",s:sudo_mode(),g:dockertools_docker_cmd,s:docker_scope[s:dockertools_scope],['','-a'][b:show_all_containers&&s:dockertools_scope!=2], s:dockertools_ls_filter)
 
 	silent 1d
-	call setpos('.', a:save_cursor)
+	call setpos('.', l:save_cursor)
 	setlocal nomodifiable
 endfunction
 
@@ -216,8 +216,8 @@ function! s:dt_unset_winid() abort
 endfunction
 
 function! s:dt_container_selected() abort
-	let a:row_num = getcurpos()[1]
-	if a:row_num <=# b:first_row
+	let l:row_num = getcurpos()[1]
+	if l:row_num <=# b:first_row
 		return 0
 	endif
 	return 1
@@ -263,7 +263,7 @@ endfunction
 function! s:container_exec(command) abort
 	if a:command !=# ""
 		let containerid = s:dt_get_id()
-		call s:term_win_open(printf('%s%s exec -ti %s sh -c "%s"',s:sudo_mode(),g:dockertools_docker_cmd,containerid,a:command),containerid)
+		call s:interactive_mode(printf('%s%s exec -ti %s sh -c "%s"',s:sudo_mode(),g:dockertools_docker_cmd,containerid,a:command),containerid,"botright",g:dockertools_term_size)
 	endif
 endfunction
 
@@ -312,18 +312,6 @@ function! s:echo_warning(msg) abort
 	echohl warningmsg
 	call s:echo_msg(a:msg)
 	echohl normal
-endfunction
-
-function! s:term_win_open(command,termname) abort
-	if has('nvim')
-		silent execute printf("botright %d split TERM",g:dockertools_term_size)
-		call termopen(a:command, {"on_exit":{-> execute("$")}})
-	elseif has('terminal')
-		silent execute printf("botright %d split TERM",g:dockertools_term_size)
-		call term_start(a:command,{"term_finish":['open','close'][g:dockertools_term_closeonexit],"term_name":a:termname,"curwin":"1"})
-	else
-		call s:echo_error('terminal is not supported')
-	endif
 endfunction
 
 function! s:interactive_mode(command,termname,position,size) abort
