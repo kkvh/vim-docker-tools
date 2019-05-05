@@ -241,8 +241,13 @@ function! s:dt_set_filter(filters) abort
 	let s:dockertools_ls_filter = l:filters
 endfunction
 
-function! s:dt_do(containerid) abort dict
-	let cmd = printf("%s %s %s %s %s %s",s:sudo_mode(),g:dockertools_docker_cmd,self.scope,self.command,self.options,a:containerid)
+function! s:dt_do(scope,action,id,...) abort
+	let l:config = s:config[a:scope][a:action]
+	let l:comand = printf("%s%s %s %s %s %s",s:sudo_mode(),g:dockertools_docker_cmd,a:scope,a:action,join(a:000,' '),a:id)
+	let l:runner = {'action':a:action,'id':a:id,'command':l:command,'args':l:config.args}
+	let l:runner.Fn = funcref('s:'.l:config[mode].'_mode')
+	let l:runner.Do = funcref('s:'.l:config[type].'_type')
+	call l:runner.Do()
 endfunction
 
 function! s:dt_switch_panel()
@@ -327,9 +332,31 @@ function! s:interactive_mode(command,termname,position,size) abort
 	endif
 endfunction
 
+function! s:interactive_mode_dict() abort dict
+	if has('nvim')
+		silent execute printf("%s %d split TERM",self.position,self.size)
+		setlocal buftype=nofile bufhidden=delete nobuflisted noswapfile
+		call termopen(self.command, {"on_exit":{-> execute("$")}})
+	elseif has('terminal')
+		silent execute printf("%s %d split TERM",self.position,self.size)
+		setlocal buftype=nofile bufhidden=delete nobuflisted noswapfile
+		call term_start(self.command,{"term_finish":['open','close'][g:dockertools_term_closeonexit],"term_name":self.winname,"curwin":"1"})
+	else
+		call s:echo_error('terminal is not supported')
+	endif
+endfunction
+
 function! s:export_mode(command,winname,position,size) abort
 	silent execute printf("%s %d split %s",a:position,a:size,a:winname)
 	silent execute printf("read ! %s",a:command)
+	silent 1d
+	setlocal buftype=nofile bufhidden=delete cursorline nobuflisted readonly nomodifiable noswapfile
+	nnoremap <buffer> <silent> q :quit<CR>
+endfunction
+
+function! s:export_mode_dict() abort dict
+	silent execute printf("%s %d split %s",self.position,self.size,self.winname)
+	silent execute printf("read ! %s",self.command)
 	silent 1d
 	setlocal buftype=nofile bufhidden=delete cursorline nobuflisted readonly nomodifiable noswapfile
 	nnoremap <buffer> <silent> q :quit<CR>
@@ -345,24 +372,34 @@ function! s:execute_mode(command,out_cb,err_cb) abort
 	endif
 endfunction
 
+function! s:execute_mode_dict() abort dict
+	if has('nvim')
+		call jobstart(self.command,{'on_stdout': 'docker_tools#action_cb','on_stderr': 'docker_tools#err_cb'})
+	elseif has('job') && !g:dockertools_disable_job
+		call job_start(self.command,{'out_cb': 'docker_tools#action_cb','err_cb': 'docker_tools#err_cb'})
+	else
+		call system(self.command)
+	endif
+endfunction
+
 function! s:sudo_mode() abort
 	return ['', 'sudo '][g:dockertools_sudo_mode]
 endfunction
 
-function! docker_tools#normal_type() abort dict
-	call self.run()
+function! s:normal_type() abort dict
+	call self.Fn()
 endfunction
 
-function! docker_tools#confirm_type() abort dict
-	if confirm(self.confirm_msg, "&yes\n&no") == 1
-		call self.run()
+function! s:confirm_type() abort dict
+	if confirm(self.args.confirm_msg, "&yes\n&no") == 1
+		call self.Fn()
 	endif
 endfunction
 
-function! docker_tools#input_type() abort dict
-	let input_ctx = input(self.input_msg)
+function! s:input_type() abort dict
+	let input_ctx = input(self.args.input_msg)
 	if input_ctx != ''
-		call self.run(input_ctx)
+		call self.Fn(input_ctx)
 	endif
 endfunction
 "}}}
