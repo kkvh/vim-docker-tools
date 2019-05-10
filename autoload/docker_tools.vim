@@ -242,17 +242,28 @@ function! s:dt_set_filter(filters) abort
 endfunction
 
 function! s:dt_do(scope,action,id,...) abort
-	let l:config = s:config[a:scope][a:action]
-	let l:comand = printf("%s%s %s %s %s %s",s:sudo_mode(),g:dockertools_docker_cmd,a:scope,a:action,join(a:000,' '),a:id)
-	let l:runner = {'action':a:action,'id':a:id,'command':l:command,'args':l:config.args}
-	let l:runner.Fn = funcref('s:'.l:config[mode].'_mode')
-	let l:runner.Do = funcref('s:'.l:config[type].'_type')
+	let l:config = s:dt_load_config(a:scope,a:action)
+	let l:command = printf("%s%s %s %s %s %s",s:sudo_mode(),g:dockertools_docker_cmd,a:scope,a:action,join(a:000,' '),a:id)
+	let l:runner = {'action':a:action,'id':a:id,'command':l:command}
+	if has_key(l:config,'args')
+		let l:runner.args = l:config.args
+	endif
+	let l:runner.Fn = funcref('s:'.l:config['mode'].'_mode_dict')
+	let l:runner.Do = funcref('s:'.l:config['type'].'_type')
 	call l:runner.Do()
 endfunction
 
 function! s:dt_switch_panel()
 	call s:dt_ui_load()
 	execute printf("setlocal filetype=docker-tools-%s", s:docker_scope[s:dockertools_scope])
+endfunction
+
+function! s:dt_load_config(scope,action)
+	if !has_key(s:config,a:scope)
+		let Loader = funcref('docker_tools#'.a:scope.'#config')
+		let s:config[a:scope] = Loader()
+	endif
+	return s:config[a:scope][a:action]
 endfunction
 "}}}
 "container commands{{{
@@ -334,7 +345,7 @@ endfunction
 
 function! s:interactive_mode_dict() abort dict
 	if has('nvim')
-		silent execute printf("%s %d split TERM",self.position,self.size)
+		silent execute printf("%s %d split TERM",self.position,g:dockertools_term_size)
 		setlocal buftype=nofile bufhidden=delete nobuflisted noswapfile
 		call termopen(self.command, {"on_exit":{-> execute("$")}})
 	elseif has('terminal')
@@ -355,7 +366,7 @@ function! s:export_mode(command,winname,position,size) abort
 endfunction
 
 function! s:export_mode_dict() abort dict
-	silent execute printf("%s %d split %s",self.position,self.size,self.winname)
+	silent execute printf("%s %d split %s",self.position,g:dockertools_logs_size,self.winname)
 	silent execute printf("read ! %s",self.command)
 	silent 1d
 	setlocal buftype=nofile bufhidden=delete cursorline nobuflisted readonly nomodifiable noswapfile
@@ -406,5 +417,6 @@ endfunction
 "referral vars {{{
 let s:container_filters  = ['id', 'name', 'label', 'exited', 'status', 'ancestor', 'before', 'since', 'volume', 'network', 'publish', 'expose', 'health', 'isolation', 'is-task']
 let s:docker_scope = ['container', 'image', 'network']
+let s:config = {}
 "}}}
 " vim: fdm=marker:
