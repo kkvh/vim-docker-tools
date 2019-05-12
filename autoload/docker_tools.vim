@@ -241,9 +241,13 @@ function! s:dt_set_filter(filters) abort
 	let s:dockertools_ls_filter = l:filters
 endfunction
 
-function! s:dt_do(scope,action,id,...) abort
+function! docker_tools#dt_do(scope,action,id,...) abort
 	let l:config = s:dt_load_config(a:scope,a:action)
-	let l:command = printf("%s%s %s %s %s %s",s:sudo_mode(),g:dockertools_docker_cmd,a:scope,a:action,join(a:000,' '),a:id)
+	if has_key(l:config,'options')
+		let l:command = printf("%s%s %s %s %s %s %s",s:sudo_mode(),g:dockertools_docker_cmd,a:scope,a:action,join(a:000,' '),l:config.options,a:id)
+	else
+		let l:command = printf("%s%s %s %s %s %s",s:sudo_mode(),g:dockertools_docker_cmd,a:scope,a:action,join(a:000,' '),a:id)
+	endif
 	let l:runner = {'action':a:action,'id':a:id,'command':l:command}
 	if has_key(l:config,'args')
 		let l:runner.args = l:config.args
@@ -260,7 +264,7 @@ endfunction
 
 function! s:dt_load_config(scope,action)
 	if !has_key(s:config,a:scope)
-		let Loader = funcref('docker_tools#'.a:scope.'#config')
+		let Loader = function('docker_tools#'.a:scope.'#config')
 		let s:config[a:scope] = Loader()
 	endif
 	return s:config[a:scope][a:action]
@@ -345,13 +349,13 @@ endfunction
 
 function! s:interactive_mode_dict() abort dict
 	if has('nvim')
-		silent execute printf("%s %d split TERM",self.position,g:dockertools_term_size)
+		silent execute printf("%s %d split TERM",g:dockertools_term_position,g:dockertools_term_size)
 		setlocal buftype=nofile bufhidden=delete nobuflisted noswapfile
 		call termopen(self.command, {"on_exit":{-> execute("$")}})
 	elseif has('terminal')
-		silent execute printf("%s %d split TERM",self.position,self.size)
+		silent execute printf("%s %d split TERM",g:dockertools_term_position,g:dockertools_term_size)
 		setlocal buftype=nofile bufhidden=delete nobuflisted noswapfile
-		call term_start(self.command,{"term_finish":['open','close'][g:dockertools_term_closeonexit],"term_name":self.winname,"curwin":"1"})
+		call term_start(self.command,{"term_finish":['open','close'][g:dockertools_term_closeonexit],"term_name":self.id,"curwin":"1"})
 	else
 		call s:echo_error('terminal is not supported')
 	endif
@@ -366,7 +370,7 @@ function! s:export_mode(command,winname,position,size) abort
 endfunction
 
 function! s:export_mode_dict() abort dict
-	silent execute printf("%s %d split %s",self.position,g:dockertools_logs_size,self.winname)
+	silent execute printf("%s %d split %s",g:dockertools_logs_position,g:dockertools_logs_size,self.id)
 	silent execute printf("read ! %s",self.command)
 	silent 1d
 	setlocal buftype=nofile bufhidden=delete cursorline nobuflisted readonly nomodifiable noswapfile
@@ -408,9 +412,10 @@ function! s:confirm_type() abort dict
 endfunction
 
 function! s:input_type() abort dict
-	let input_ctx = input(self.args.input_msg)
-	if input_ctx != ''
-		call self.Fn(input_ctx)
+	let l:input_response = input(self.args.input_msg)
+	if l:input_response != ''
+		call call(self.args.Input_fn,[l:input_response],self)
+		call self.Fn()
 	endif
 endfunction
 "}}}

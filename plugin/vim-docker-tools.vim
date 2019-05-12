@@ -8,12 +8,20 @@ if !exists('g:dockertools_term_size')
 	let g:dockertools_term_size = 15
 endif
 
+if !exists('g:dockertools_term_position')
+	let g:dockertools_term_position = 'botright'
+endif
+
 if !exists('g:dockertools_term_closeonexit')
 	let g:dockertools_term_closeonexit = 1
 endif
 
 if !exists('g:dockertools_logs_size')
 	let g:dockertools_logs_size = 30
+endif
+
+if !exists('g:dockertools_logs_position')
+	let g:dockertools_logs_position = 'botright'
 endif
 
 if !exists('g:dockertools_default_all')
