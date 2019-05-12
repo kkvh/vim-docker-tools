@@ -1,6 +1,6 @@
 "docker tools controls{{{
 function! docker_tools#dt_open() abort
-	if !exists('g:dockertools_winid')
+	if !exists('s:dockertools_winid')
 		silent execute printf("topleft %s split DOCKER",g:dockertools_size)
 		let b:show_help = 0
 		let b:show_all_containers = g:dockertools_default_all
@@ -16,18 +16,18 @@ function! docker_tools#dt_open() abort
 		setlocal buftype=nofile cursorline winfixheight bufhidden=delete readonly nobuflisted noswapfile
 		call s:dt_switch_panel()
 		silent 2
-		let g:dockertools_winid = win_getid()
+		let s:dockertools_winid = win_getid()
 		autocmd BufWinLeave <buffer> call s:dt_unset_winid()
 		autocmd CursorHold <buffer> call s:dt_ui_load()
 		call s:dt_set_mapping()
 	else
-		call win_gotoid(g:dockertools_winid)
+		call win_gotoid(s:dockertools_winid)
 	endif
 endfunction
 
 function! docker_tools#dt_close() abort
-	if exists('g:dockertools_winid')
-		call win_gotoid(g:dockertools_winid)
+	if exists('s:dockertools_winid')
+		call win_gotoid(s:dockertools_winid)
 		quit
 	endif
 endfunction
@@ -37,7 +37,7 @@ function! docker_tools#dt_reload() abort
 endfunction
 
 function! docker_tools#dt_toggle() abort
-	if !exists('g:dockertools_winid')
+	if !exists('s:dockertools_winid')
 		call docker_tools#dt_open()
 	else
 		call docker_tools#dt_close()
@@ -97,9 +97,9 @@ function! docker_tools#action_cb(...) abort
 			return
 		endif
 	endif
-	if exists('g:dockertools_winid')
+	if exists('s:dockertools_winid')
 		let l:current_windowid = win_getid()
-		call win_gotoid(g:dockertools_winid)
+		call win_gotoid(s:dockertools_winid)
 		call s:dt_ui_load()
 		call win_gotoid(l:current_windowid)
 	endif
@@ -202,8 +202,8 @@ function! s:dt_get_help() abort
 endfunction
 
 function! s:dt_unset_winid() abort
-	if exists('g:dockertools_winid')
-		unlet g:dockertools_winid
+	if exists('s:dockertools_winid')
+		unlet s:dockertools_winid
 	endif
 endfunction
 
@@ -233,7 +233,7 @@ function! s:dt_set_filter(filters) abort
 	let s:dockertools_ls_filter = l:filters
 endfunction
 
-function! docker_tools#dt_do(scope,action,id,...) abort
+function! s:dt_do(scope,action,id,...) abort
 	let l:config = s:dt_load_config(a:scope,a:action)
 	if has_key(l:config,'options')
 		let l:command = printf("%s%s %s %s %s %s %s",s:sudo_mode(),g:dockertools_docker_cmd,a:scope,a:action,join(a:000,' '),l:config.options,a:id)
