@@ -44,14 +44,6 @@ function! docker_tools#dt_toggle() abort
 	endif
 endfunction
 
-function! docker_tools#dt_set_host(...) 
-	if a:0 == 1 && (index(["''",'""',''], a:1)) == -1
-		let g:dockertools_docker_cmd = join(['docker -H', a:1], ' ')
-	else
-		let g:dockertools_docker_cmd = 'docker'
-	endif
-endfunction
-
 function! docker_tools#dt_swap(i)
 	let s:dockertools_scope = (s:dockertools_scope+a:i)%len(s:docker_scope)
 	call s:dt_switch_panel()

@@ -1,3 +1,11 @@
+function! s:dt_set_host(...) 
+	if a:0 == 1 && (index(["''",'""',''], a:1)) == -1
+		let g:dockertools_docker_cmd = join(['docker -H', a:1], ' ')
+	else
+		let g:dockertools_docker_cmd = 'docker'
+	endif
+endfunction
+
 let s:default_key_mapping = {'container-start' : 's', 'container-stop' : 'd', 'container-restart' : 'r', 'container-delete' : 'x', 'container-pause' : 'p', 'container-unpause' : 'u', 'container-execute' : '>', 'container-show-logs' : '<', 'ui-toggle-all' : 'a', 'ui-reload' : 'R', 'ui-close' : 'q', 'ui-toggle-help' : '?', 'ui-filter' : 'f'}
 
 if !exists('g:dockertools_size')
@@ -41,9 +49,9 @@ if !exists('g:dockertools_disable_job')
 endif
 
 if exists('g:dockertools_docker_host')
-	call docker_tools#dt_set_host(g:dockertools_docker_host)
+	call s:dt_set_host(g:dockertools_docker_host)
 else
-	call docker_tools#dt_set_host()
+	call s:dt_set_host()
 endif
 
 if exists('g:dockertools_user_key_mapping')
