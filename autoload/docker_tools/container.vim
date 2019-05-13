@@ -5,22 +5,28 @@ endfunction
 let s:config = {
 	\'start': {
 		\'mode': 'execute',
-		\'type': 'normal'},
+		\'type': 'normal',
+		\'msg': 'Starting container'},
 	\'stop': {
 		\'mode': 'execute',
-		\'type': 'normal'},
+		\'type': 'normal',
+		\'msg': 'Stopping container'},
 	\'rm': {
 		\'mode': 'execute',
-		\'type': 'normal'},
+		\'type': 'normal',
+		\'msg': 'Removing container'},
 	\'restart': {
 		\'mode': 'execute',
-		\'type': 'normal'},
+		\'type': 'normal',
+		\'msg': 'Restarting container'},
 	\'pause': {
 		\'mode': 'execute',
-		\'type': 'normal'},
+		\'type': 'normal',
+		\'msg': 'Pausing container'},
 	\'unpause': {
 		\'mode': 'execute',
-		\'type': 'normal'},
+		\'type': 'normal',
+		\'msg': 'Unpausing container'},
 	\'exec': {
 		\'mode': 'interactive',
 		\'type': 'input',

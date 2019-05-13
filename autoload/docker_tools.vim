@@ -57,7 +57,7 @@ endfunction
 "docker tools commands{{{
 function! docker_tools#dt_action(action) abort
 	if s:dt_container_selected()
-		call docker_tools#container_action(a:action,s:dt_get_id())
+		call s:dt_do(s:docker_scope[s:dockertools_scope],a:action,s:dt_get_id())
 	endif
 endfunction
 
@@ -246,6 +246,9 @@ function! s:dt_do(scope,action,id,...) abort
 	endif
 	let l:runner.Fn = funcref('s:'.l:config['mode'].'_mode_dict')
 	let l:runner.Do = funcref('s:'.l:config['type'].'_type')
+	if has_key(l:config,'msg')
+		call s:echo_msg(printf("%s %s...",l:config.msg,a:id))
+	endif
 	call l:runner.Do()
 endfunction
 
@@ -256,7 +259,7 @@ endfunction
 
 function! s:dt_load_config(scope,action)
 	if !has_key(s:config,a:scope)
-		let Loader = function('docker_tools#'.a:scope.'#config')
+		let l:Loader = function('docker_tools#'.a:scope.'#config')
 		let s:config[a:scope] = Loader()
 	endif
 	return s:config[a:scope][a:action]
