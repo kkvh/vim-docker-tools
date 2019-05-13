@@ -17,5 +17,15 @@
   * `Plugin 'kevinhui/vim-docker-tools'`
 * Manual
   * Copy all of the files into your `~/.vim` directory
+# Roadmap
+[x] Refactor docker runner structure
+[] Refactor key mapping
+[] Support custom key mapping
+[] Support key mapping with options
+[] Pause/Unpause toggle
+* Container functions
+* Image functions
+* Network functions
+* Dockerfile functions
 # Contributing
 Feel free to raise any questions/issues/comments. Submit pull request as you want.
