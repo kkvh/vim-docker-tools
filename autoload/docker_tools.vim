@@ -61,13 +61,6 @@ function! docker_tools#dt_action(action) abort
 	endif
 endfunction
 
-function! docker_tools#dt_run_command() abort
-	if s:dt_container_selected()
-		let command = input('Enter command: ')
-		call s:container_exec(command)
-	endif
-endfunction
-
 function! docker_tools#dt_toggle_help() abort
 	let b:show_help = !b:show_help
 	call s:dt_ui_load()
@@ -76,12 +69,6 @@ endfunction
 function! docker_tools#dt_toggle_all() abort
 	let b:show_all_containers = !b:show_all_containers
 	call s:dt_ui_load()
-endfunction
-
-function! docker_tools#dt_logs() abort
-	if s:dt_container_selected()
-		call docker_tools#container_logs(s:dt_get_id())
-	endif
 endfunction
 
 function! docker_tools#dt_ui_set_filter()
@@ -142,8 +129,8 @@ function! s:dt_set_mapping() abort
 	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-restart'] . ' :call docker_tools#dt_action("restart")<CR>'
 	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-pause'] . ' :call docker_tools#dt_action("pause")<CR>'
 	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-unpause'] . ' :call docker_tools#dt_action("unpause")<CR>'
-	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-execute'] . ' :call docker_tools#dt_run_command()<CR>'
-	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-show-logs'] . ' :call docker_tools#dt_logs()<CR>'
+	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-execute'] . ' :call docker_tools#dt_action("exec")<CR>'
+	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-show-logs'] . ' :call docker_tools#dt_action("logs")<CR>'
 	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-close'] . ' :DockerToolsClose<CR>'
 	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-toggle-all'] . ' :call docker_tools#dt_toggle_all()<CR>'
 	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-reload'] . ' :call docker_tools#dt_reload()<CR>'
@@ -244,7 +231,7 @@ function! s:dt_do(scope,action,id,...) abort
 	if has_key(l:config,'args')
 		let l:runner.args = l:config.args
 	endif
-	let l:runner.Fn = funcref('s:'.l:config['mode'].'_mode_dict')
+	let l:runner.Fn = funcref('s:'.l:config['mode'].'_mode')
 	let l:runner.Do = funcref('s:'.l:config['type'].'_type')
 	if has_key(l:config,'msg')
 		call s:echo_msg(printf("%s %s...",l:config.msg,a:id))
@@ -267,38 +254,10 @@ endfunction
 "}}}
 "container commands{{{
 function! docker_tools#container_action(action,id,...) abort
-	call s:container_action_run(a:action,a:id,join(a:000,' '))
-endfunction
-
-function! docker_tools#container_logs(id,...) abort
-	call s:export_mode(printf("%s%s container logs %s %s",s:sudo_mode(),g:dockertools_docker_cmd,join(a:000,' '),a:id),a:id."_LOGS","botright",g:dockertools_logs_size)
+	call s:dt_do('container',a:action,a:id,join(a:000,' '))
 endfunction
 "}}}
 "container functions{{{
-function! s:container_exec(command) abort
-	if a:command !=# ""
-		let containerid = s:dt_get_id()
-		call s:interactive_mode(printf('%s%s exec -ti %s sh -c "%s"',s:sudo_mode(),g:dockertools_docker_cmd,containerid,a:command),containerid,"botright",g:dockertools_term_size)
-	endif
-endfunction
-
-function! s:container_action_run(action,id,options) abort
-	call s:echo_container_action_msg(a:action,a:id)
-	call s:execute_mode(printf('%s%s container %s %s %s',s:sudo_mode(),g:dockertools_docker_cmd,a:action,a:options,a:id),'docker_tools#action_cb','docker_tools#err_cb')
-endfunction
-
-function! s:echo_container_action_msg(action,id) abort
-	if a:action=='start'
-		call s:echo_msg('Starting container '.a:id.'...')
-	elseif a:action=='stop'
-		call s:echo_msg('Stopping container '.a:id.'...')
-	elseif a:action=='rm'
-		call s:echo_msg('Removing container '.a:id.'...')
-	elseif a:action=='restart'
-		call s:echo_msg('Restarting container '.a:id.'...')
-	endif
-endfunction
-
 function! s:refresh_container_list() abort
 	let container_str = system(s:sudo_mode().g:dockertools_docker_cmd.' ps -a --format="{{.ID}} {{.Names}}"')
 	let s:container_list = split(container_str)
@@ -329,20 +288,7 @@ function! s:echo_warning(msg) abort
 	echohl normal
 endfunction
 
-function! s:interactive_mode(command,termname,position,size) abort
-	if has('nvim')
-		silent execute printf("%s %d split TERM",a:position,a:size)
-		call termopen(a:command, {"on_exit":{-> execute("$")}})
-	elseif has('terminal')
-		silent execute printf("botright %d split TERM",g:dockertools_term_size)
-		setlocal buftype=nofile bufhidden=delete nobuflisted noswapfile
-		call term_start(a:command,{"term_finish":['open','close'][g:dockertools_term_closeonexit],"term_name":a:termname,"curwin":"1"})
-	else
-		call s:echo_error('terminal is not supported')
-	endif
-endfunction
-
-function! s:interactive_mode_dict() abort dict
+function! s:interactive_mode() abort dict
 	if has('nvim')
 		silent execute printf("%s %d split TERM",g:dockertools_term_position,g:dockertools_term_size)
 		setlocal buftype=nofile bufhidden=delete nobuflisted noswapfile
@@ -356,15 +302,7 @@ function! s:interactive_mode_dict() abort dict
 	endif
 endfunction
 
-function! s:export_mode(command,winname,position,size) abort
-	silent execute printf("%s %d split %s",a:position,a:size,a:winname)
-	silent execute printf("read ! %s",a:command)
-	silent 1d
-	setlocal buftype=nofile bufhidden=delete cursorline nobuflisted readonly nomodifiable noswapfile
-	nnoremap <buffer> <silent> q :quit<CR>
-endfunction
-
-function! s:export_mode_dict() abort dict
+function! s:export_mode() abort dict
 	silent execute printf("%s %d split %s",g:dockertools_logs_position,g:dockertools_logs_size,self.id)
 	silent execute printf("read ! %s",self.command)
 	silent 1d
@@ -372,17 +310,7 @@ function! s:export_mode_dict() abort dict
 	nnoremap <buffer> <silent> q :quit<CR>
 endfunction
 
-function! s:execute_mode(command,out_cb,err_cb) abort
-	if has('nvim')
-		call jobstart(a:command,{'on_stdout': a:out_cb,'on_stderr': a:err_cb})
-	elseif has('job') && !g:dockertools_disable_job
-		call job_start(a:command,{'out_cb': a:out_cb,'err_cb': a:err_cb})
-	else
-		call system(a:command)
-	endif
-endfunction
-
-function! s:execute_mode_dict() abort dict
+function! s:execute_mode() abort dict
 	if has('nvim')
 		call jobstart(self.command,{'on_stdout': 'docker_tools#action_cb','on_stderr': 'docker_tools#err_cb'})
 	elseif has('job') && !g:dockertools_disable_job

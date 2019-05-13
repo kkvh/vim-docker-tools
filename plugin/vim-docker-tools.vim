@@ -70,4 +70,4 @@ command! -complete=customlist,docker_tools#complete -nargs=+ ContainerRemove cal
 command! -complete=customlist,docker_tools#complete -nargs=+ ContainerRestart call docker_tools#container_action('restart',<f-args>)
 command! -complete=customlist,docker_tools#complete -nargs=+ ContainerPause call docker_tools#container_action('pause',<f-args>)
 command! -complete=customlist,docker_tools#complete -nargs=+ ContainerUnpause call docker_tools#container_action('unpause',<f-args>)
-command! -complete=customlist,docker_tools#complete -nargs=+ ContainerLogs call docker_tools#container_logs(<f-args>)
+command! -complete=customlist,docker_tools#complete -nargs=+ ContainerLogs call docker_tools#container_action('logs',<f-args>)
