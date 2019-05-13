@@ -18,11 +18,11 @@
 * Manual
   * Copy all of the files into your `~/.vim` directory
 # Roadmap
-[x] Refactor docker runner structure
-[] Refactor key mapping
-[] Support custom key mapping
-[] Support key mapping with options
-[] Pause/Unpause toggle
+* [x] Refactor docker runner structure
+* [ ] Refactor key mapping
+* [ ] Support custom key mapping
+* [ ] Support key mapping with options
+* [ ] Pause/Unpause toggle
 * Container functions
 * Image functions
 * Network functions
