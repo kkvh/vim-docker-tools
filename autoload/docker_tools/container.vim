@@ -42,3 +42,18 @@ let s:config = {
 function s:config.exec.args.Input_fn(response) abort dict
 	let self.command = printf("%s %s",self.command,a:response)
 endfunction
+
+function! docker_tools#container#mapping() abort
+	return s:mapping
+endfunction
+
+let s:mapping = {
+	\'s':'start',
+	\'d':'stop',
+	\'r':'restart',
+	\'x':'rm',
+	\'p':'pause',
+	\'u':'unpause',
+	\'>':'exec',
+	\'<':'logs'
+\}

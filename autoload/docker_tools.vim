@@ -123,14 +123,10 @@ function! s:dt_get_id() abort
 endfunction
 
 function! s:dt_set_mapping() abort
-	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-start'] . ' :call docker_tools#dt_action("start")<CR>'
-	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-stop'] . ' :call docker_tools#dt_action("stop")<CR>'
-	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-delete'] . ' :call docker_tools#dt_action("rm")<CR>'
-	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-restart'] . ' :call docker_tools#dt_action("restart")<CR>'
-	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-pause'] . ' :call docker_tools#dt_action("pause")<CR>'
-	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-unpause'] . ' :call docker_tools#dt_action("unpause")<CR>'
-	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-execute'] . ' :call docker_tools#dt_action("exec")<CR>'
-	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['container-show-logs'] . ' :call docker_tools#dt_action("logs")<CR>'
+	let l:mapping = s:dt_load_mapping(s:docker_scope[s:dockertools_scope])
+	for [l:key,l:action] in items(l:mapping)
+		execute 'nnoremap <buffer> <silent>' . l:key . ' :call docker_tools#dt_action("' . l:action . '")<CR>'
+	endfor
 	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-close'] . ' :DockerToolsClose<CR>'
 	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-toggle-all'] . ' :call docker_tools#dt_toggle_all()<CR>'
 	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-reload'] . ' :call docker_tools#dt_reload()<CR>'
@@ -251,6 +247,14 @@ function! s:dt_load_config(scope,action)
 	endif
 	return s:config[a:scope][a:action]
 endfunction
+
+function! s:dt_load_mapping(scope)
+	if !has_key(s:config,a:scope)
+		let l:Loader = function('docker_tools#'.a:scope.'#mapping')
+		let s:mapping[a:scope] = Loader()
+	endif
+	return s:mapping[a:scope]
+endfunction
 "}}}
 "container commands{{{
 function! docker_tools#container_action(action,id,...) abort
@@ -346,5 +350,6 @@ endfunction
 let s:container_filters  = ['id', 'name', 'label', 'exited', 'status', 'ancestor', 'before', 'since', 'volume', 'network', 'publish', 'expose', 'health', 'isolation', 'is-task']
 let s:docker_scope = ['container', 'image', 'network']
 let s:config = {}
+let s:mapping = {}
 "}}}
 " vim: fdm=marker:
