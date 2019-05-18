@@ -48,12 +48,24 @@ function! docker_tools#container#mapping() abort
 endfunction
 
 let s:mapping = {
-	\'s':'start',
-	\'d':'stop',
-	\'r':'restart',
-	\'x':'rm',
-	\'p':'pause',
-	\'u':'unpause',
-	\'>':'exec',
-	\'<':'logs'
+	\'start':'s',
+	\'stop':'d',
+	\'restart':'r',
+	\'rm':'x',
+	\'pause':'p',
+	\'unpause':'u',
+	\'exec':'>',
+	\'logs':'<'
 \}
+
+function! docker_tools#container#help(mapping) abort
+	let l:help = printf("# %s: start container\n",a:mapping['start'])
+	let l:help .= printf("# %s: stop container\n",a:mapping['stop'])
+	let l:help .= printf("# %s: restart container\n",a:mapping['restart'])
+	let l:help .= printf("# %s: delete container\n",a:mapping['rm'])
+	let l:help .= printf("# %s: pause container\n",a:mapping['pause'])
+	let l:help .= printf("# %s: unpause container\n",a:mapping['unpause'])
+	let l:help .= printf("# %s: execute command to container\n",a:mapping['exec'])
+	let l:help .= printf("# %s: show container logs\n",a:mapping['logs'])
+	return help
+endfunction

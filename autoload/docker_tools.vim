@@ -19,7 +19,6 @@ function! docker_tools#dt_open() abort
 		let s:dockertools_winid = win_getid()
 		autocmd BufWinLeave <buffer> call s:dt_unset_winid()
 		autocmd CursorHold <buffer> call s:dt_ui_load()
-		call s:dt_set_mapping()
 	else
 		call win_gotoid(s:dockertools_winid)
 	endif
@@ -123,9 +122,10 @@ function! s:dt_get_id() abort
 endfunction
 
 function! s:dt_set_mapping() abort
+	silent mapclear <buffer>
 	let l:mapping = s:dt_load_mapping(s:docker_scope[s:dockertools_scope])
-	for [l:key,l:action] in items(l:mapping)
-		execute 'nnoremap <buffer> <silent>' . l:key . ' :call docker_tools#dt_action("' . l:action . '")<CR>'
+	for [l:action,l:key] in items(l:mapping)
+		execute printf("nnoremap <buffer> <silent> %s :call docker_tools#dt_action('%s')<CR>",l:key,l:action)
 	endfor
 	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-close'] . ' :DockerToolsClose<CR>'
 	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-toggle-all'] . ' :call docker_tools#dt_toggle_all()<CR>'
@@ -134,9 +134,9 @@ function! s:dt_set_mapping() abort
 	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-filter'] . ' :call docker_tools#dt_ui_set_filter()<CR>'
 	nnoremap <buffer> <silent> <leader>> :call docker_tools#dt_swap(1)<CR>
 	nnoremap <buffer> <silent> <leader>< :call docker_tools#dt_swap(-1)<CR>
-	nnoremap <buffer> <silent> <leader>1 :call docker_tools#dt_go(0)<CR>
-	nnoremap <buffer> <silent> <leader>2 :call docker_tools#dt_go(1)<CR>
-	nnoremap <buffer> <silent> <leader>3 :call docker_tools#dt_go(2)<CR>
+	for l:i in range(1,len(s:docker_scope))
+		execute printf("nnoremap <buffer> <silent> <leader>%d :call docker_tools#dt_go(%d)<CR>",l:i,l:i-1)
+	endfor
 endfunction
 
 function! s:dt_ui_load() abort
@@ -165,16 +165,13 @@ function! s:dt_ui_load() abort
 endfunction
 
 function! s:dt_get_help() abort
+	let l:scope = s:docker_scope[s:dockertools_scope]
+	let l:mapping = s:dt_load_mapping(l:scope)
+	let l:Helper = function('docker_tools#'.l:scope.'#help')
 	let help = "# vim-docker-tools quickhelp\n"
 	let help .= "# ------------------------------------------------------------------------------\n"
-	let help .= "# " . g:dockertools_key_mapping['container-start'] . ": start container\n"
-	let help .= "# " . g:dockertools_key_mapping['container-stop'] . ": stop container\n"
-	let help .= "# " . g:dockertools_key_mapping['container-restart'] . ": restart container\n"
-	let help .= "# " . g:dockertools_key_mapping['container-delete'] . ": delete container\n"
-	let help .= "# " . g:dockertools_key_mapping['container-pause'] . ": pause container\n"
-	let help .= "# " . g:dockertools_key_mapping['container-unpause'] . ": unpause container\n"
-	let help .= "# " . g:dockertools_key_mapping['container-execute'] . ": execute command to container\n"
-	let help .= "# " . g:dockertools_key_mapping['container-show-logs'] . ": show container logs\n"
+	let help .= l:Helper(l:mapping)
+	let help .= "# ------------------------------------------------------------------------------\n"
 	let help .= "# " . g:dockertools_key_mapping['ui-toggle-all'] . ": toggle show all/running containers\n"
 	let help .= "# " . g:dockertools_key_mapping['ui-filter'] . ": set container filter\n"
 	let help .= "# " . g:dockertools_key_mapping['ui-reload'] . ": refresh container status\n"
@@ -237,6 +234,7 @@ endfunction
 
 function! s:dt_switch_panel()
 	call s:dt_ui_load()
+	call s:dt_set_mapping()
 	execute printf("setlocal filetype=docker-tools-%s", s:docker_scope[s:dockertools_scope])
 endfunction
 
