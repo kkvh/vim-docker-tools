@@ -127,11 +127,12 @@ function! s:dt_set_mapping() abort
 	for [l:action,l:key] in items(l:mapping)
 		execute printf("nnoremap <buffer> <silent> %s :call docker_tools#dt_action('%s')<CR>",l:key,l:action)
 	endfor
-	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-close'] . ' :DockerToolsClose<CR>'
-	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-toggle-all'] . ' :call docker_tools#dt_toggle_all()<CR>'
-	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-reload'] . ' :call docker_tools#dt_reload()<CR>'
-	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-toggle-help'] . ' :call docker_tools#dt_toggle_help()<CR>'
-	execute 'nnoremap <buffer> <silent>' . g:dockertools_key_mapping['ui-filter'] . ' :call docker_tools#dt_ui_set_filter()<CR>'
+	let l:mapping = s:dt_load_mapping('list')
+	execute 'nnoremap <buffer> <silent>' . l:mapping['close'] . ' :DockerToolsClose<CR>'
+	execute 'nnoremap <buffer> <silent>' . l:mapping['toggle-all'] . ' :call docker_tools#dt_toggle_all()<CR>'
+	execute 'nnoremap <buffer> <silent>' . l:mapping['refresh'] . ' :call docker_tools#dt_reload()<CR>'
+	execute 'nnoremap <buffer> <silent>' . l:mapping['toggle-help'] . ' :call docker_tools#dt_toggle_help()<CR>'
+	execute 'nnoremap <buffer> <silent>' . l:mapping['filter'] . ' :call docker_tools#dt_ui_set_filter()<CR>'
 	nnoremap <buffer> <silent> <leader>> :call docker_tools#dt_swap(1)<CR>
 	nnoremap <buffer> <silent> <leader>< :call docker_tools#dt_swap(-1)<CR>
 	for l:i in range(1,len(s:docker_scope))
@@ -168,15 +169,13 @@ function! s:dt_get_help() abort
 	let l:scope = s:docker_scope[s:dockertools_scope]
 	let l:mapping = s:dt_load_mapping(l:scope)
 	let l:Helper = function('docker_tools#'.l:scope.'#help')
+	let l:list_mapping = s:dt_load_mapping('list')
+	let l:List_helper = function('docker_tools#list#help')
 	let help = "# vim-docker-tools quickhelp\n"
 	let help .= "# ------------------------------------------------------------------------------\n"
 	let help .= l:Helper(l:mapping)
 	let help .= "# ------------------------------------------------------------------------------\n"
-	let help .= "# " . g:dockertools_key_mapping['ui-toggle-all'] . ": toggle show all/running containers\n"
-	let help .= "# " . g:dockertools_key_mapping['ui-filter'] . ": set container filter\n"
-	let help .= "# " . g:dockertools_key_mapping['ui-reload'] . ": refresh container status\n"
-	let help .= "# " . g:dockertools_key_mapping['ui-close'] . ": close vim-docker-tools\n"
-	let help .= "# " . g:dockertools_key_mapping['ui-toggle-help'] . ": toggle help\n"
+	let help .= l:List_helper(l:list_mapping)
 	let help .= "# ------------------------------------------------------------------------------\n"
 	silent! put =help
 endfunction
