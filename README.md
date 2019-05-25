@@ -19,13 +19,16 @@
   * Copy all of the files into your `~/.vim` directory
 # Roadmap
 * [x] Refactor docker runner structure
-* [ ] Refactor key mapping
-* [ ] Support custom key mapping
+* [x] Refactor key mapping
+* [x] Support custom key mapping
+  * [ ] Update vim documentation
 * [ ] Support key mapping with options
 * [ ] Pause/Unpause toggle
 * Container functions
 * Image functions
+* [ ] Image command autocomplete
 * Network functions
+* [ ] Network command autocomplete
 * Dockerfile functions
 # Contributing
 Feel free to raise any questions/issues/comments. Submit pull request as you want.

@@ -246,9 +246,13 @@ function! s:dt_load_config(scope,action)
 endfunction
 
 function! s:dt_load_mapping(scope)
-	if !has_key(s:config,a:scope)
+	if !has_key(s:mapping,a:scope)
 		let l:Loader = function('docker_tools#'.a:scope.'#mapping')
-		let s:mapping[a:scope] = Loader()
+		if exists('g:dockertools_'.a:scope.'_mapping')
+			let s:mapping[a:scope] = extend(Loader(),eval('g:dockertools_'.a:scope.'_mapping'))
+		else
+			let s:mapping[a:scope] = Loader()
+		endif
 	endif
 	return s:mapping[a:scope]
 endfunction

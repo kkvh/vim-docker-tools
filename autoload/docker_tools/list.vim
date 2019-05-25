@@ -4,10 +4,10 @@ endfunction
 
 let s:mapping = {
 	\'close':'q',
-	\'toggle-all':'a',
-	\'refresh':'R',
+	\'toggle-all':'<leader>a',
+	\'refresh':'<leader>r',
 	\'toggle-help':'?',
-	\'filter':'f'
+	\'filter':'<leader>f'
 \}
 
 function! docker_tools#list#help(mapping) abort
