@@ -21,26 +21,25 @@ INSTALL                                                   *docker-tools-install*
 
 *  Pathogen >
 
-    git clone https://github.com/kevinhui/vim-docker-tools.git \
+    git clone https://github.com/kkvh/vim-docker-tools.git \
 	  ~/.vim/bundle/vim-docker-tools
 <
 *  Vim-plug >
 
-    Plug 'kevinhui/vim-docker-tools'
+    Plug 'kkvh/vim-docker-tools'
 
 *  NeoBundle >
 
-    NeoBundle 'kevinhui/vim-docker-tools'
+    NeoBundle 'kkvh/vim-docker-tools'
 <
 *  Vundle >
 
-    Plugin 'kevinhui/vim-docker-tools'
+    Plugin 'kkvh/vim-docker-tools'
 <
 *  Manual >
 
     Copy all of the files into your `~/.vim` directory
 <
-
 ================================================================================
 COMMANDS                                                 *docker-tools-commands*
 
@@ -102,22 +101,11 @@ COMMANDS                                                 *docker-tools-commands*
 ================================================================================
 MAPPINGS                                                 *docker-tools-mappings*
 
-    DockerTools Default | Mapping Dict Key    | Details
-    ------------------- | ------------------- | ------------------------------
-    s                   | container-start     | Start container.
-    d                   | container-stop      | Stop container.
-    r                   | container-restart   | Restart container.
-    x                   | container-delete    | Delete container.
-    p                   | container-pause     | Pause container.
-    u                   | container-unpause   | Unpause container.
-    >                   | container-execute   | Execute command to container.
-    <                   | container-show-logs | Show container logs.
-    a                   | ui-toggle-all       | Toggle show all/running 
-                                                containers.
-    f                   | ui-filter           | Set container filters.
-    R                   | ui-reload           | Refresh container status.
-    q                   | ui-close            | Close DockerTools window.
-    ?                   | ui-toggle-help      | Toggle help.
+To see the mappings of each scope, call |docker_tools#{scope}#mapping()|.
+Supported scopes: list(ls), container. To configure custom mappings, please
+create the variable |g:dockertools_{scope}_mapping|. E.g.
+>
+  let g:dockertools_container_mapping = {'start':'ss'}
 
 ================================================================================
 SETTINGS                                                 *docker-tools-settings*
@@ -136,6 +124,13 @@ Use this option to set the terminal window size. Default value: 15
   let g:dockertools_term_size = 15
 <
 
+                                                 *'g:dockertools_term_position'*
+
+Use this option to set the terminal window position. Default value: botright
+>
+	let g:dockertools_term_position = 'botright'
+<
+
                                               *'g:dockertools_term_closeonexit'*
 
 Close terminal window when process exited. Default value: 1
@@ -150,11 +145,26 @@ Use this option to set the logs window size. Default value: 30
   let g:dockertools_logs_size = 30
 <
 
+                                                 *'g:dockertools_logs_position'*
+
+Use this option to set the logs window position. Default value: botright
+>
+	let g:dockertools_logs_position = 'botright'
+<
+
                                                    *'g:dockertools_default_all'*
 
 Show all or running containers only by default. Default value: 1
 >
   let g:dockertools_default_all = 1
+<
+
+                                                 *'g:dockertools_default_scope'*
+
+Use this option to set the default scope of DockerTools. 
+Default value: container
+>
+	let g:dockertools_default_scope = 'container'
 <
 
                                                      *'g:dockertools_sudo_mode'*
@@ -173,6 +183,7 @@ configuration.
 User may consider setting |NOPASSWD| on docker commands to avoid sudo password
 prompt.
 
+
                                                    *'g:dockertools_disable_job'*
 
 Use |system()| instead of |job_start()|. Not useful for neovim. Default value: 0
@@ -180,6 +191,7 @@ Use |system()| instead of |job_start()|. Not useful for neovim. Default value: 0
 	let g:dockertools_disable_job = 0
 <
 Note: |system()| will not return callback message.
+
 
                                                    *'g:dockertools_docker_host'*
 
@@ -191,23 +203,13 @@ Note: There is no default value for this variable. If one is not provided by
 the user, 'docker' will be used as the command prefix, with no -H flag or
 host string provided
 
-                                                   *'g:dockertools_docker_cmd'*
+
+                                                    *'g:dockertools_docker_cmd'*
 
 The prefix to use for the docker cli. Default value: docker
 >
   let g:dockertools_docker_cmd = 'docker'
 <
-
-                                                   *'g:dockertools_user_key_mapping'*
-
-A dictionary of key mapping used to override the default settings. Default value: unset
->
-  let g:dockertools_user_key_mapping = {'ui_filter' : 'F'}
-<
-
-See |docker-tools-mapping| for a list of valid keys, and their default
-settings.
-
 
 ================================================================================
 CONTRIBUTING                                         *docker-tools-contributing*
@@ -215,4 +217,4 @@ CONTRIBUTING                                         *docker-tools-contributing*
 Bug reports, feature requests and pull requests are all welcome!
 
 
- vim: ft=help tw=78 et ts=2 sw=2 sts=2 norl
+ vim: ft=help tw=80 et ts=2 sw=2 sts=2 norl
