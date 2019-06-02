@@ -34,8 +34,8 @@ if !exists('g:dockertools_default_all')
 	let g:dockertools_default_all = 1
 endif
 
-if !exists('g:dockertools_default_scope')
-	let g:dockertools_default_scope = 'container'
+if !exists('g:dockertools_scopes')
+	let g:dockertools_scopes = ['container', 'image', 'network']
 endif
 
 if !exists('g:dockertools_sudo_mode')

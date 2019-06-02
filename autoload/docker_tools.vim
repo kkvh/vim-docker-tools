@@ -4,11 +4,8 @@ function! docker_tools#dt_open() abort
 		silent execute printf("topleft %s split DOCKER",g:dockertools_size)
 		let b:show_help = 0
 		let b:show_all_containers = g:dockertools_default_all
-		if !exists('s:dockertools_scope')
-			let s:dockertools_scope = index(s:docker_scope, g:dockertools_default_scope)
-			if s:dockertools_scope == -1
-				let s:dockertools_scope = 0
-			endif
+		if !exists('s:scope_position')
+			let s:scope_position = 0
 		endif
 		if !exists('s:dockertools_ls_filter')
 			let s:dockertools_ls_filter = ''
@@ -44,19 +41,19 @@ function! docker_tools#dt_toggle() abort
 endfunction
 
 function! docker_tools#dt_swap(i)
-	let s:dockertools_scope = (s:dockertools_scope+a:i)%len(s:docker_scope)
+	let s:scope_position = (s:scope_position+a:i)%len(g:dockertools_scopes)
 	call s:dt_switch_panel()
 endfunction
 
 function! docker_tools#dt_go(i)
-	let s:dockertools_scope = a:i
+	let s:scope_position = a:i
 	call s:dt_switch_panel()
 endfunction
 "}}}
 "docker tools commands{{{
 function! docker_tools#dt_action(action) abort
 	if s:dt_container_selected()
-		call s:dt_do(s:docker_scope[s:dockertools_scope],a:action,s:dt_get_id())
+		call s:dt_do(g:dockertools_scopes[s:scope_position],a:action,s:dt_get_id())
 	endif
 endfunction
 
@@ -123,7 +120,7 @@ endfunction
 
 function! s:dt_set_mapping() abort
 	silent mapclear <buffer>
-	let l:mapping = s:dt_load_mapping(s:docker_scope[s:dockertools_scope])
+	let l:mapping = s:dt_load_mapping(g:dockertools_scopes[s:scope_position])
 	for [l:action,l:key] in items(l:mapping)
 		execute printf("nnoremap <buffer> <silent> %s :call docker_tools#dt_action('%s')<CR>",l:key,l:action)
 	endfor
@@ -135,7 +132,7 @@ function! s:dt_set_mapping() abort
 	execute 'nnoremap <buffer> <silent>' . l:mapping['filter'] . ' :call docker_tools#dt_ui_set_filter()<CR>'
 	nnoremap <buffer> <silent> <leader>> :call docker_tools#dt_swap(1)<CR>
 	nnoremap <buffer> <silent> <leader>< :call docker_tools#dt_swap(-1)<CR>
-	for l:i in range(1,len(s:docker_scope))
+	for l:i in range(1,len(g:dockertools_scopes))
 		execute printf("nnoremap <buffer> <silent> <leader>%d :call docker_tools#dt_go(%d)<CR>",l:i,l:i-1)
 	endfor
 endfunction
@@ -158,7 +155,7 @@ function! s:dt_ui_load() abort
 		let b:first_row += 1
 	endif
 
-	silent! execute printf("read ! %s%s %s ls %s %s",s:sudo_mode(),g:dockertools_docker_cmd,s:docker_scope[s:dockertools_scope],['','-a'][b:show_all_containers&&s:dockertools_scope!=2], s:dockertools_ls_filter)
+	silent! execute printf("read ! %s%s %s ls %s %s",s:sudo_mode(),g:dockertools_docker_cmd,g:dockertools_scopes[s:scope_position],['','-a'][b:show_all_containers&&s:scope_position!=2], s:dockertools_ls_filter)
 
 	silent 1d
 	call setpos('.', l:save_cursor)
@@ -166,7 +163,7 @@ function! s:dt_ui_load() abort
 endfunction
 
 function! s:dt_get_help() abort
-	let l:scope = s:docker_scope[s:dockertools_scope]
+	let l:scope = g:dockertools_scopes[s:scope_position]
 	let l:mapping = s:dt_load_mapping(l:scope)
 	let l:Helper = function('docker_tools#'.l:scope.'#help')
 	let l:list_mapping = s:dt_load_mapping('list')
@@ -234,7 +231,7 @@ endfunction
 function! s:dt_switch_panel()
 	call s:dt_ui_load()
 	call s:dt_set_mapping()
-	execute printf("setlocal filetype=docker-tools-%s", s:docker_scope[s:dockertools_scope])
+	execute printf("setlocal filetype=docker-tools-%s", g:dockertools_scopes[s:scope_position])
 endfunction
 
 function! s:dt_load_config(scope,action)
@@ -278,7 +275,7 @@ endfunction
 "utils{{{
 function! s:echo_msg(msg) abort
 	redraw
-	echom "vim-docker: " . a:msg
+	echom "docker-tools: " . a:msg
 endfunction
 
 function! s:echo_error(msg) abort
@@ -349,7 +346,6 @@ endfunction
 "}}}
 "referral vars {{{
 let s:container_filters  = ['id', 'name', 'label', 'exited', 'status', 'ancestor', 'before', 'since', 'volume', 'network', 'publish', 'expose', 'health', 'isolation', 'is-task']
-let s:docker_scope = ['container', 'image', 'network']
 let s:config = {}
 let s:mapping = {}
 "}}}
