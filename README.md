@@ -21,7 +21,7 @@
 * [x] Refactor docker runner structure
 * [x] Refactor key mapping
 * [x] Support custom key mapping
-  * [ ] Update vim documentation
+  * [x] Update vim documentation
 * [ ] Support key mapping with options
 * [ ] Pause/Unpause toggle
 * Container functions
