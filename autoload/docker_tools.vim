@@ -212,11 +212,11 @@ endfunction
 function! s:dt_do(manager,action,id,...) abort
 	let l:config = s:dt_load_config(a:manager,a:action)
 	if has_key(l:config,'options')
-		let l:command = printf("%s%s %s %s %s %s %s",s:sudo_mode(),g:dockertools_docker_cmd,a:manager,a:action,join(a:000,' '),l:config.options,a:id)
+		let l:instruction = printf("%s%s %s %s %s %s %s",s:sudo_mode(),g:dockertools_docker_cmd,a:manager,l:config.command,join(a:000,' '),l:config.options,a:id)
 	else
-		let l:command = printf("%s%s %s %s %s %s",s:sudo_mode(),g:dockertools_docker_cmd,a:manager,a:action,join(a:000,' '),a:id)
+		let l:instruction = printf("%s%s %s %s %s %s",s:sudo_mode(),g:dockertools_docker_cmd,a:manager,l:config.command,join(a:000,' '),a:id)
 	endif
-	let l:runner = {'action':a:action,'id':a:id,'command':l:command}
+	let l:runner = {'action':a:action,'id':a:id,'instruction':l:instruction}
 	if has_key(l:config,'args')
 		let l:runner.args = l:config.args
 	endif
@@ -294,11 +294,11 @@ function! s:interactive_mode() abort dict
 	if has('nvim')
 		silent execute printf("%s %d split TERM",g:dockertools_term_position,g:dockertools_term_size)
 		setlocal buftype=nofile bufhidden=delete nobuflisted noswapfile
-		call termopen(self.command, {"on_exit":{-> execute("$")}})
+		call termopen(self.instruction, {"on_exit":{-> execute("$")}})
 	elseif has('terminal')
 		silent execute printf("%s %d split TERM",g:dockertools_term_position,g:dockertools_term_size)
 		setlocal buftype=nofile bufhidden=delete nobuflisted noswapfile
-		call term_start(self.command,{"term_finish":['open','close'][g:dockertools_term_closeonexit],"term_name":self.id,"curwin":"1"})
+		call term_start(self.instruction,{"term_finish":['open','close'][g:dockertools_term_closeonexit],"term_name":self.id,"curwin":"1"})
 	else
 		call s:echo_error('terminal is not supported')
 	endif
@@ -306,7 +306,7 @@ endfunction
 
 function! s:export_mode() abort dict
 	silent execute printf("%s %d split %s",g:dockertools_logs_position,g:dockertools_logs_size,self.id)
-	silent execute printf("read ! %s",self.command)
+	silent execute printf("read ! %s",self.instruction)
 	silent 1d
 	setlocal buftype=nofile bufhidden=delete cursorline nobuflisted readonly nomodifiable noswapfile
 	nnoremap <buffer> <silent> q :quit<CR>
@@ -314,11 +314,11 @@ endfunction
 
 function! s:execute_mode() abort dict
 	if has('nvim')
-		call jobstart(self.command,{'on_stdout': 'docker_tools#action_cb','on_stderr': 'docker_tools#err_cb'})
+		call jobstart(self.instruction,{'on_stdout': 'docker_tools#action_cb','on_stderr': 'docker_tools#err_cb'})
 	elseif has('job') && !g:dockertools_disable_job
-		call job_start(self.command,{'out_cb': 'docker_tools#action_cb','err_cb': 'docker_tools#err_cb'})
+		call job_start(self.instruction,{'out_cb': 'docker_tools#action_cb','err_cb': 'docker_tools#err_cb'})
 	else
-		call system(self.command)
+		call system(self.instruction)
 	endif
 endfunction
 

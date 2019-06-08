@@ -4,30 +4,37 @@ endfunction
 
 let s:config = {
 	\'start': {
+		\'command': 'start',
 		\'mode': 'execute',
 		\'type': 'normal',
 		\'msg': 'Starting container'},
 	\'stop': {
+		\'command': 'stop',
 		\'mode': 'execute',
 		\'type': 'normal',
 		\'msg': 'Stopping container'},
 	\'rm': {
+		\'command': 'rm',
 		\'mode': 'execute',
 		\'type': 'normal',
 		\'msg': 'Removing container'},
 	\'restart': {
+		\'command': 'restart',
 		\'mode': 'execute',
 		\'type': 'normal',
 		\'msg': 'Restarting container'},
 	\'pause': {
+		\'command': 'pause',
 		\'mode': 'execute',
 		\'type': 'normal',
 		\'msg': 'Pausing container'},
 	\'unpause': {
+		\'command': 'unpause',
 		\'mode': 'execute',
 		\'type': 'normal',
 		\'msg': 'Unpausing container'},
 	\'exec': {
+		\'command': 'exec',
 		\'mode': 'interactive',
 		\'type': 'input',
 		\'options': '-it',
@@ -35,6 +42,7 @@ let s:config = {
 			\'input_msg': 'Enter command: '}
 		\},
 	\'logs': {
+		\'command': 'logs',
 		\'mode': 'export',
 		\'type': 'normal'}
 \}
