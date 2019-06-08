@@ -23,7 +23,6 @@
 * [x] Support custom key mapping
   * [x] Update vim documentation
 * [ ] Support key mapping with options
-* [ ] Pause/Unpause toggle
 * Container functions
 * Image functions
 * [ ] Image command autocomplete
