@@ -7,7 +7,7 @@ CONTENTS                                               *docker-tools-contents*
   1. Intro........................................|docker-tools-intro|
   2. Install......................................|docker-tools-install|
   3. Commands.....................................|docker-tools-commands|
-  4. Scopes.......................................|docker-tools-scopes|
+  4. Managers.....................................|docker-tools-managers|
   5. Mappings.....................................|docker-tools-mappings|
   6. Settings.....................................|docker-tools-settings|
   7. Contributing.................................|docker-tools-contributing|
@@ -100,20 +100,20 @@ COMMANDS                                               *docker-tools-commands*
 	  Show container logs.
 
 ==============================================================================
-SCOPES                                                   *docker-tools-scopes*
+MANAGERS                                                 *docker-tools-managers*
 
-Scope is the implementation of docker's management commands. Currently 
+Manager is the implementation of docker's management commands. Currently 
 supports: 'list', 'container'.
 
-|Note|: 'list' is a special scope which controls DockerTools Panel general
+|Note|: 'list' is a special manager which controls DockerTools Panel general
 mappings.
 
 ==============================================================================
 MAPPINGS                                               *docker-tools-mappings*
 
-To see the mappings of each scope, call |docker_tools#{scope}#mapping()|.
-Supported scopes: list(ls), container. To configure custom mappings, please
-create the variable |g:dockertools_{scope}_mapping|. E.g.
+To see the mappings of each manager, call |docker_tools#{manager}#mapping()|.
+Supported managers: list(ls), container. To configure custom mappings, please
+create the variable |g:dockertools_{manager}_mapping|. E.g.
 >
   let g:dockertools_container_mapping = {'start':'ss'}
 
@@ -169,12 +169,12 @@ Show all or running containers only by default. Default value: 1
   let g:dockertools_default_all = 1
 <
 
-                                                      *'g:dockertools_scopes'*
+                                                      *'g:dockertools_managers'*
 
-Use this option to set the supported scopes and its order. 
+Use this option to set the supported managers and its order. 
 Default value: ['container', 'image', 'network']
 >
-	let g:dockertools_scopes = ['container', 'image', 'network']
+	let g:dockertools_managers = ['container', 'image', 'network']
 <
 
                                                    *'g:dockertools_sudo_mode'*
