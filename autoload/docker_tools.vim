@@ -57,6 +57,15 @@ function! docker_tools#dt_action(action) abort
 	endif
 endfunction
 
+function! docker_tools#dt_action_option(action) abort
+	if s:dt_container_selected()
+		let l:options = input("Option(s): ")
+		if l:options != ''
+			call s:dt_do(g:dockertools_managers[s:manager_position],a:action,s:dt_get_id(),l:options)
+		endif
+	endif
+endfunction
+
 function! docker_tools#dt_toggle_help() abort
 	let b:show_help = !b:show_help
 	call s:dt_ui_load()
@@ -120,16 +129,17 @@ endfunction
 
 function! s:dt_set_mapping() abort
 	silent mapclear <buffer>
+	let l:list_mapping = s:dt_load_mapping('list')
+	execute 'nnoremap <buffer> <silent>' . l:list_mapping['close'] . ' :DockerToolsClose<CR>'
+	execute 'nnoremap <buffer> <silent>' . l:list_mapping['toggle-all'] . ' :call docker_tools#dt_toggle_all()<CR>'
+	execute 'nnoremap <buffer> <silent>' . l:list_mapping['refresh'] . ' :call docker_tools#dt_reload()<CR>'
+	execute 'nnoremap <buffer> <silent>' . l:list_mapping['toggle-help'] . ' :call docker_tools#dt_toggle_help()<CR>'
+	execute 'nnoremap <buffer> <silent>' . l:list_mapping['filter'] . ' :call docker_tools#dt_ui_set_filter()<CR>'
 	let l:mapping = s:dt_load_mapping(g:dockertools_managers[s:manager_position])
 	for [l:action,l:key] in items(l:mapping)
 		execute printf("nnoremap <buffer> <silent> %s :call docker_tools#dt_action('%s')<CR>",l:key,l:action)
+		execute printf("nnoremap <buffer> <silent> %s%s :call docker_tools#dt_action_option('%s')<CR>",l:list_mapping['option'],l:key,l:action)
 	endfor
-	let l:mapping = s:dt_load_mapping('list')
-	execute 'nnoremap <buffer> <silent>' . l:mapping['close'] . ' :DockerToolsClose<CR>'
-	execute 'nnoremap <buffer> <silent>' . l:mapping['toggle-all'] . ' :call docker_tools#dt_toggle_all()<CR>'
-	execute 'nnoremap <buffer> <silent>' . l:mapping['refresh'] . ' :call docker_tools#dt_reload()<CR>'
-	execute 'nnoremap <buffer> <silent>' . l:mapping['toggle-help'] . ' :call docker_tools#dt_toggle_help()<CR>'
-	execute 'nnoremap <buffer> <silent>' . l:mapping['filter'] . ' :call docker_tools#dt_ui_set_filter()<CR>'
 	nnoremap <buffer> <silent> <leader>> :call docker_tools#dt_swap(1)<CR>
 	nnoremap <buffer> <silent> <leader>< :call docker_tools#dt_swap(-1)<CR>
 	for l:i in range(1,len(g:dockertools_managers))

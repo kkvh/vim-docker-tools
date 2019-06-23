@@ -22,7 +22,7 @@
 * [x] Refactor key mapping
 * [x] Support custom key mapping
   * [x] Update vim documentation
-* [ ] Support key mapping with options
+* [x] Support key mapping with options
 * Container functions
 * Image functions
 * [ ] Image command autocomplete
