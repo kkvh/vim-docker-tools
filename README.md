@@ -3,7 +3,7 @@
 * Open DockerTools Panel with `:DockerToolsOpen`, close it with `:DockerToolsClose`
 * Toggle DockerTools Panel with `:DockerToolsToggle`
 * Set Docker daemon host with `:DockerToolsSetHost`
-* Support `:ContainerStart`, `:ContainerStop`, `:ContainerRemove`, `:ContainerRestart`, `:ContainerPause`, `:ContainerUnpause`, `ContainerLogs`. For details please check out the documentation (`:help docker-tools-commands`).
+* Support `:ContainerStart`, `:ContainerStop`, `:ContainerRemove`, `:ContainerRestart`, `:ContainerPause`, `:ContainerUnpause`, `:ContainerLogs`. For details please check out the documentation (`:help docker-tools-commands`).
 * Autocompletion for container commands
 * Full documentation in `:help vim-docker-tools`
 # Install
