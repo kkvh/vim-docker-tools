@@ -39,7 +39,7 @@ function! docker_tools#dt_toggle() abort
 	endif
 endfunction
 
-function! docker_tools#dt_set_host(...) 
+function! docker_tools#dt_set_host(...)
 	if a:0 == 1 && (index(["''",'""',''], a:1)) == -1
 		let g:dockertools_docker_cmd = join(['docker -H', a:1], ' ')
 	else
@@ -58,6 +58,13 @@ function! docker_tools#dt_run_command() abort
 	if s:dt_container_selected()
 		let command = input('Enter command: ')
 		call s:container_exec(command)
+	endif
+endfunction
+
+function! docker_tools#dt_attach() abort
+	if s:dt_container_selected()
+		let containerid = s:dt_get_id()
+		call s:term_win_open(printf('%s%s attach %s',s:sudo_mode(),g:dockertools_docker_cmd,containerid),containerid)
 	endif
 endfunction
 
@@ -128,6 +135,7 @@ function! s:dt_set_mapping() abort
 		nnoremap <buffer> <silent> r :call docker_tools#dt_action('restart')<CR>
 		nnoremap <buffer> <silent> p :call docker_tools#dt_action('pause')<CR>
 		nnoremap <buffer> <silent> u :call docker_tools#dt_action('unpause')<CR>
+		nnoremap <buffer> <silent> A :call docker_tools#dt_attach()<CR>
 		nnoremap <buffer> <silent> > :call docker_tools#dt_run_command()<CR>
 		nnoremap <buffer> <silent> < :call docker_tools#dt_logs()<CR>
 		nnoremap <buffer> <silent> a :call docker_tools#dt_toggle_all()<CR>
@@ -170,6 +178,7 @@ function! s:dt_get_help() abort
 	let help .= "# x: delete container\n"
 	let help .= "# p: pause container\n"
 	let help .= "# u: unpause container\n"
+	let help .= "# A: attach to container\n"
 	let help .= "# >: execute command to container\n"
 	let help .= "# <: show container logs\n"
 	let help .= "# a: toggle show all/running containers\n"
