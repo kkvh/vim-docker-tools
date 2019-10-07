@@ -48,7 +48,7 @@ let s:config = {
 \}
 
 function s:config.exec.args.Input_fn(response) abort dict
-	let self.command = printf("%s %s",self.command,a:response)
+	let self.instruction = printf("%s %s",self.instruction,a:response)
 endfunction
 
 function! docker_tools#container#mapping() abort
