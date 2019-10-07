@@ -12,6 +12,12 @@ endfunction
 let s:mapping = {
 \}
 
+function! docker_tools#image#key() abort
+	return s:key
+endfunction
+
+let s:key = 'IMAGE ID'
+
 function! docker_tools#image#help(mapping) abort
 	let l:help = ""
 	return help

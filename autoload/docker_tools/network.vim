@@ -12,6 +12,12 @@ endfunction
 let s:mapping = {
 \}
 
+function! docker_tools#network#key() abort
+	return s:key
+endfunction
+
+let s:key = 'NETWORK ID'
+
 function! docker_tools#network#help(mapping) abort
 	let l:help = ""
 	return help

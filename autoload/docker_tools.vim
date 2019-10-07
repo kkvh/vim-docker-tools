@@ -53,7 +53,8 @@ endfunction
 "docker tools commands{{{
 function! docker_tools#dt_action(action) abort
 	if s:dt_container_selected()
-		call s:dt_do(g:dockertools_managers[s:manager_position],a:action,s:dt_get_id())
+		let l:manager = g:dockertools_managers[s:manager_position]
+		call s:dt_do(l:manager,a:action,s:dt_get_id(l:manager))
 	endif
 endfunction
 
@@ -114,12 +115,13 @@ function! docker_tools#err_cb(...) abort
 endfunction
 "}}}
 "docker tools functions{{{
-function! s:dt_get_id() abort
+function! s:dt_get_id(manager) abort
 	let l:row_num = getcurpos()[1]
-	call search("CONTAINER ID")
+	let l:Key = function('docker_tools#'.a:manager.'#key')
+	call search(l:Key())
 	let l:current_cursor = getcurpos()
 	if l:current_cursor[1] !=# b:first_row
-		call s:echo_error("No container ID found")
+		call s:echo_error(printf("No %s found",l:Key()))
 		return ""
 	endif
 	let l:current_cursor[1] = l:row_num

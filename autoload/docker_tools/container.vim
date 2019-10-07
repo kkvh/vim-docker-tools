@@ -66,6 +66,12 @@ let s:mapping = {
 	\'logs':'<'
 \}
 
+function! docker_tools#container#key() abort
+	return s:key
+endfunction
+
+let s:key = 'CONTAINER ID'
+
 function! docker_tools#container#help(mapping) abort
 	let l:help = printf("# %s: start container\n",a:mapping['start'])
 	let l:help .= printf("# %s: stop container\n",a:mapping['stop'])
