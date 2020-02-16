@@ -72,6 +72,12 @@ endfunction
 
 let s:key = 'CONTAINER ID'
 
+function! docker_tools#container#filter() abort
+	return s:filter
+endfunction
+
+let s:filter  = ['id', 'name', 'label', 'exited', 'status', 'ancestor', 'before', 'since', 'volume', 'network', 'publish', 'expose', 'health', 'isolation', 'is-task']
+
 function! docker_tools#container#help(mapping) abort
 	let l:help = printf("# %s: start container\n",a:mapping['start'])
 	let l:help .= printf("# %s: stop container\n",a:mapping['stop'])

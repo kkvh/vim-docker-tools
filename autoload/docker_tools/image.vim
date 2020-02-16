@@ -18,6 +18,12 @@ endfunction
 
 let s:key = 'IMAGE ID'
 
+function! docker_tools#image#filter() abort
+	return s:filter
+endfunction
+
+let s:filter  = ['before', 'dangling', 'label', 'reference', 'since']
+
 function! docker_tools#image#help(mapping) abort
 	let l:help = ""
 	return help

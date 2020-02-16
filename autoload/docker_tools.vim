@@ -211,11 +211,13 @@ function! s:dt_set_filter(filters) abort
 		let s:dockertools_ls_filter = ''
 		return
 	endif
+	let l:manager = g:dockertools_managers[s:manager_position]
+	let l:valid_filters = function('docker_tools#'.l:manager.'#filter')()
 	let l:filters = ''
-	for l:ps_filter in split(a:filters, ' ')
-		let l:filter_components = split(l:ps_filter, '=')
-		if index(s:container_filters, filter_components[0]) > -1
-			let l:filters = join([l:filters, '-f', l:ps_filter], ' ')
+	for l:ls_filter in split(a:filters, ' ')
+		let l:filter_components = split(l:ls_filter, '=')
+		if index(l:valid_filters, filter_components[0]) > -1
+			let l:filters = join([l:filters, '-f', l:ls_filter], ' ')
 		endif
 	endfor
 	let s:dockertools_ls_filter = l:filters
@@ -357,7 +359,6 @@ function! s:input_type() abort dict
 endfunction
 "}}}
 "referral vars {{{
-let s:container_filters  = ['id', 'name', 'label', 'exited', 'status', 'ancestor', 'before', 'since', 'volume', 'network', 'publish', 'expose', 'health', 'isolation', 'is-task']
 let s:config = {}
 let s:mapping = {}
 "}}}

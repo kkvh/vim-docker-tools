@@ -18,6 +18,12 @@ endfunction
 
 let s:key = 'NETWORK ID'
 
+function! docker_tools#network#filter() abort
+	return s:filter
+endfunction
+
+let s:filter  = ['driver', 'id', 'label', 'name', 'scope', 'type']
+
 function! docker_tools#network#help(mapping) abort
 	let l:help = ""
 	return help
