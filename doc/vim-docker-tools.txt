@@ -110,6 +110,7 @@ MAPPINGS                                                 *docker-tools-mappings*
     x                    | Delete container.
     p                    | Pause container.
     u                    | Unpause container.
+    t                    | Attach container window.
     >                    | Execute command to container.
     <                    | Show container logs.
     a                    | Toggle show all/running containers.
