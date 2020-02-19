@@ -3,8 +3,8 @@
 * Open DockerTools Panel with `:DockerToolsOpen`, close it with `:DockerToolsClose`
 * Toggle DockerTools Panel with `:DockerToolsToggle`
 * Set Docker daemon host with `:DockerToolsSetHost`
-* Support `:ContainerStart`, `:ContainerStop`, `:ContainerRemove`, `:ContainerRestart`, `:ContainerPause`, `:ContainerUnpause`, `ContainerLogs`. For details please check out the documentation (`:help docker-tools-commands`).
-* Autocompletion for container commands
+* Support container commands (and more in the future!). For details please check out the documentation (`:help docker-tools-commands`).
+* Autocompletion for commands
 * Full documentation in `:help vim-docker-tools`
 # Install
 * Pathogen
@@ -25,9 +25,9 @@
 * [x] Support key mapping with options
 * Container functions
 * Image functions
-* [ ] Image command autocomplete
+* [x] Image command autocomplete
 * Network functions
-* [ ] Network command autocomplete
+* [x] Network command autocomplete
 * Dockerfile functions
 # Contributing
 Feel free to raise any questions/issues/comments. Submit pull request as you want.

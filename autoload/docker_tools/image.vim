@@ -3,6 +3,11 @@ function! docker_tools#image#config() abort
 endfunction
 
 let s:config = {
+	\'rm': {
+		\'command': 'rm',
+		\'mode': 'execute',
+		\'type': 'normal',
+		\'msg': 'Removing image'}
 \}
 
 function! docker_tools#image#mapping() abort
@@ -10,6 +15,7 @@ function! docker_tools#image#mapping() abort
 endfunction
 
 let s:mapping = {
+	\'rm':'x'
 \}
 
 function! docker_tools#image#key() abort
@@ -25,6 +31,6 @@ endfunction
 let s:filter  = ['before', 'dangling', 'label', 'reference', 'since']
 
 function! docker_tools#image#help(mapping) abort
-	let l:help = ""
+	let l:help = printf("# %s: delete image\n",a:mapping['rm'])
 	return help
 endfunction

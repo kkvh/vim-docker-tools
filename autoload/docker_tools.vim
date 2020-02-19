@@ -137,13 +137,13 @@ function! s:dt_set_mapping() abort
 	execute 'nnoremap <buffer> <silent>' . l:list_mapping['refresh'] . ' :call docker_tools#dt_reload()<CR>'
 	execute 'nnoremap <buffer> <silent>' . l:list_mapping['toggle-help'] . ' :call docker_tools#dt_toggle_help()<CR>'
 	execute 'nnoremap <buffer> <silent>' . l:list_mapping['filter'] . ' :call docker_tools#dt_ui_set_filter()<CR>'
+	execute 'nnoremap <buffer> <silent>' . l:list_mapping['next-panel'] . ' :call docker_tools#dt_swap(1)<CR>'
+	execute 'nnoremap <buffer> <silent>' . l:list_mapping['previous-panel'] . ' :call docker_tools#dt_swap(-1)<CR>'
 	let l:mapping = s:dt_load_mapping(g:dockertools_managers[s:manager_position])
 	for [l:action,l:key] in items(l:mapping)
 		execute printf("nnoremap <buffer> <silent> %s :call docker_tools#dt_action('%s')<CR>",l:key,l:action)
 		execute printf("nnoremap <buffer> <silent> %s%s :call docker_tools#dt_action_option('%s')<CR>",l:list_mapping['option'],l:key,l:action)
 	endfor
-	nnoremap <buffer> <silent> <leader>> :call docker_tools#dt_swap(1)<CR>
-	nnoremap <buffer> <silent> <leader>< :call docker_tools#dt_swap(-1)<CR>
 	for l:i in range(1,len(g:dockertools_managers))
 		execute printf("nnoremap <buffer> <silent> <leader>%d :call docker_tools#dt_go(%d)<CR>",l:i,l:i-1)
 	endfor
@@ -272,18 +272,46 @@ endfunction
 function! docker_tools#container_action(action,id,...) abort
 	call s:dt_do('container',a:action,a:id,join(a:000,' '))
 endfunction
+
+function! docker_tools#command_run(manager,action,id,...) abort
+	call s:dt_do(a:manager,a:action,a:id,join(a:000,' '))
+endfunction
 "}}}
-"container functions{{{
+"autocomplete functions{{{
 function! s:refresh_container_list() abort
-	let container_str = system(s:sudo_mode().g:dockertools_docker_cmd.' ps -a --format="{{.ID}} {{.Names}}"')
+	let container_str = system(s:sudo_mode().g:dockertools_docker_cmd.' container ls -a --format="{{.ID}} {{.Names}}"')
 	let s:container_list = split(container_str)
 endfunction
 
-function! docker_tools#complete(ArgLead, CmdLine, CursorPos) abort
+function! docker_tools#container_complete(ArgLead, CmdLine, CursorPos) abort
 	if !exists('s:container_list')
 		call s:refresh_container_list()
 	endif
 	return filter(s:container_list, 'v:val =~ "^'.a:ArgLead.'"')
+endfunction
+
+function! s:refresh_image_list() abort
+	let image_str = system(s:sudo_mode().g:dockertools_docker_cmd.' image ls -a --format="{{.ID}}"')
+	let s:image_list = split(image_str)
+endfunction
+
+function! docker_tools#image_complete(ArgLead, CmdLine, CursorPos) abort
+	if !exists('s:image_list')
+		call s:refresh_image_list()
+	endif
+	return filter(s:image_list, 'v:val =~ "^'.a:ArgLead.'"')
+endfunction
+
+function! s:refresh_network_list() abort
+	let network_str = system(s:sudo_mode().g:dockertools_docker_cmd.' network ls -a --format="{{.ID}} {{.Name}}"')
+	let s:network_list = split(network_str)
+endfunction
+
+function! docker_tools#network_complete(ArgLead, CmdLine, CursorPos) abort
+	if !exists('s:network_list')
+		call s:refresh_network_list()
+	endif
+	return filter(s:network_list, 'v:val =~ "^'.a:ArgLead.'"')
 endfunction
 "}}}
 "utils{{{

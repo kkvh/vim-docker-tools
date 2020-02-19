@@ -8,7 +8,9 @@ let s:mapping = {
 	\'refresh':'<leader>r',
 	\'toggle-help':'?',
 	\'filter':'<leader>f',
-	\'option':'o'
+	\'option':'o',
+	\'next-panel':'<leader>>',
+	\'previous-panel':'<leader><'
 \}
 
 function! docker_tools#list#help(mapping) abort
@@ -18,5 +20,7 @@ function! docker_tools#list#help(mapping) abort
 	let l:help .= printf("# %s: close vim-docker-tools\n",a:mapping['close'])
 	let l:help .= printf("# %s: toggle help\n",a:mapping['toggle-help'])
 	let l:help .= printf("# %s <key>: perform action with option(s)\n",a:mapping['option'])
+	let l:help .= printf("# %s: navigate next panel\n",a:mapping['next-panel'])
+	let l:help .= printf("# %s: navigate previous panel\n",a:mapping['previous-panel'])
 	return help
 endfunction
