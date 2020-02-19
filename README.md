@@ -12,7 +12,7 @@
 ## Install
 
 * Pathogen
-  * `git clone https://github.com/danilolutz/vim-docker-tools.git ~/.vim/bundle/vim-docker-tools`
+  * `git clone https://github.com/kevinhui/vim-docker-tools.git ~/.vim/bundle/vim-docker-tools`
 * Vim-plug
   * `Plug 'kevinhui/vim-docker-tools'`
 * NeoBundle
