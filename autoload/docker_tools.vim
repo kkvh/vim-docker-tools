@@ -1,28 +1,29 @@
 "docker tools controls{{{
 function! docker_tools#dt_open() abort
-	if !exists('g:dockertools_winid')
+	if !exists('s:dockertools_winid')
 		silent execute printf("topleft %s split DOCKER",g:dockertools_size)
-		silent topleft
 		let b:show_help = 0
 		let b:show_all_containers = g:dockertools_default_all
+		if !exists('s:manager_position')
+			let s:manager_position = 0
+		endif
 		if !exists('s:dockertools_ls_filter')
 			let s:dockertools_ls_filter = ''
 		endif
-		setlocal buftype=nofile cursorline filetype=docker-tools winfixheight bufhidden=delete readonly nobuflisted
-		call s:dt_ui_load()
+		setlocal buftype=nofile cursorline winfixheight bufhidden=delete readonly nobuflisted noswapfile
+		call s:dt_switch_panel()
 		silent 2
-		let g:dockertools_winid = win_getid()
+		let s:dockertools_winid = win_getid()
 		autocmd BufWinLeave <buffer> call s:dt_unset_winid()
 		autocmd CursorHold <buffer> call s:dt_ui_load()
-		call s:dt_set_mapping()
 	else
-		call win_gotoid(g:dockertools_winid)
+		call win_gotoid(s:dockertools_winid)
 	endif
 endfunction
 
 function! docker_tools#dt_close() abort
-	if exists('g:dockertools_winid')
-		call win_gotoid(g:dockertools_winid)
+	if exists('s:dockertools_winid')
+		call win_gotoid(s:dockertools_winid)
 		quit
 	endif
 endfunction
@@ -32,32 +33,37 @@ function! docker_tools#dt_reload() abort
 endfunction
 
 function! docker_tools#dt_toggle() abort
-	if !exists('g:dockertools_winid')
+	if !exists('s:dockertools_winid')
 		call docker_tools#dt_open()
 	else
 		call docker_tools#dt_close()
 	endif
 endfunction
 
-function! docker_tools#dt_set_host(...) 
-	if a:0 == 1 && (index(["''",'""',''], a:1)) == -1
-		let g:dockertools_docker_cmd = join(['docker -H', a:1], ' ')
-	else
-		let g:dockertools_docker_cmd = 'docker'
-	endif
+function! docker_tools#dt_swap(i)
+	let s:manager_position = (s:manager_position+a:i)%len(g:dockertools_managers)
+	call s:dt_switch_panel()
+endfunction
+
+function! docker_tools#dt_go(i)
+	let s:manager_position = a:i
+	call s:dt_switch_panel()
 endfunction
 "}}}
 "docker tools commands{{{
 function! docker_tools#dt_action(action) abort
 	if s:dt_container_selected()
-		call docker_tools#container_action(a:action,s:dt_get_id())
+		let l:manager = g:dockertools_managers[s:manager_position]
+		call s:dt_do(l:manager,a:action,s:dt_get_id(l:manager))
 	endif
 endfunction
 
-function! docker_tools#dt_run_command() abort
+function! docker_tools#dt_action_option(action) abort
 	if s:dt_container_selected()
-		let command = input('Enter command: ')
-		call s:container_exec(command)
+		let l:options = input("Option(s): ")
+		if l:options != ''
+			call s:dt_do(g:dockertools_managers[s:manager_position],a:action,s:dt_get_id(),l:options)
+		endif
 	endif
 endfunction
 
@@ -71,12 +77,6 @@ function! docker_tools#dt_toggle_all() abort
 	call s:dt_ui_load()
 endfunction
 
-function! docker_tools#dt_logs() abort
-	if s:dt_container_selected()
-		call docker_tools#container_logs(s:dt_get_id())
-	endif
-endfunction
-
 function! docker_tools#dt_ui_set_filter()
 	let l:filter = input("Enter Filter(s): ")
 	call s:dt_set_filter(l:filter)
@@ -85,11 +85,16 @@ endfunction
 "}}}
 "docker tools callbacks{{{
 function! docker_tools#action_cb(...) abort
-	if exists('g:dockertools_winid')
-		let current_windowid = win_getid()
-		call win_gotoid(g:dockertools_winid)
+	if has('nvim')
+		if a:2[0] ==# ''
+			return
+		endif
+	endif
+	if exists('s:dockertools_winid')
+		let l:current_windowid = win_getid()
+		call win_gotoid(s:dockertools_winid)
 		call s:dt_ui_load()
-		call win_gotoid(current_windowid)
+		call win_gotoid(l:current_windowid)
 	endif
 	if has('nvim')
 		call s:echo_msg(a:2[0])
@@ -100,6 +105,9 @@ endfunction
 
 function! docker_tools#err_cb(...) abort
 	if has('nvim')
+		if a:2[0] ==# ''
+			return
+		endif
 		call s:echo_error(a:2[0])
 	else
 		call s:echo_error(a:2)
@@ -107,38 +115,43 @@ function! docker_tools#err_cb(...) abort
 endfunction
 "}}}
 "docker tools functions{{{
-function! s:dt_get_id() abort
-	let row_num = getcurpos()[1]
-	call search("CONTAINER ID")
-	let current_cursor = getcurpos()
-	if current_cursor[1] !=# b:first_row
-		call s:echo_error("No container ID found")
+function! s:dt_get_id(manager) abort
+	let l:row_num = getcurpos()[1]
+	let l:Key = function('docker_tools#'.a:manager.'#key')
+	call search(l:Key())
+	let l:current_cursor = getcurpos()
+	if l:current_cursor[1] !=# b:first_row
+		call s:echo_error(printf("No %s found",l:Key()))
 		return ""
 	endif
-	let current_cursor[1] = row_num
-	call setpos('.', current_cursor)
+	let l:current_cursor[1] = l:row_num
+	call setpos('.', l:current_cursor)
 	return expand('<cWORD>')
 endfunction
 
 function! s:dt_set_mapping() abort
-		nnoremap <buffer> <silent> q :DockerToolsClose<CR>
-		nnoremap <buffer> <silent> s :call docker_tools#dt_action('start')<CR>
-		nnoremap <buffer> <silent> d :call docker_tools#dt_action('stop')<CR>
-		nnoremap <buffer> <silent> x :call docker_tools#dt_action('rm')<CR>
-		nnoremap <buffer> <silent> r :call docker_tools#dt_action('restart')<CR>
-		nnoremap <buffer> <silent> p :call docker_tools#dt_action('pause')<CR>
-		nnoremap <buffer> <silent> u :call docker_tools#dt_action('unpause')<CR>
-		nnoremap <buffer> <silent> > :call docker_tools#dt_run_command()<CR>
-		nnoremap <buffer> <silent> < :call docker_tools#dt_logs()<CR>
-		nnoremap <buffer> <silent> a :call docker_tools#dt_toggle_all()<CR>
-		nnoremap <buffer> <silent> R :call docker_tools#dt_reload()<CR>
-		nnoremap <buffer> <silent> ? :call docker_tools#dt_toggle_help()<CR>
-		nnoremap <buffer> <silent> f :call docker_tools#dt_ui_set_filter()<CR>
+	silent mapclear <buffer>
+	let l:list_mapping = s:dt_load_mapping('list')
+	execute 'nnoremap <buffer> <silent>' . l:list_mapping['close'] . ' :DockerToolsClose<CR>'
+	execute 'nnoremap <buffer> <silent>' . l:list_mapping['toggle-all'] . ' :call docker_tools#dt_toggle_all()<CR>'
+	execute 'nnoremap <buffer> <silent>' . l:list_mapping['refresh'] . ' :call docker_tools#dt_reload()<CR>'
+	execute 'nnoremap <buffer> <silent>' . l:list_mapping['toggle-help'] . ' :call docker_tools#dt_toggle_help()<CR>'
+	execute 'nnoremap <buffer> <silent>' . l:list_mapping['filter'] . ' :call docker_tools#dt_ui_set_filter()<CR>'
+	execute 'nnoremap <buffer> <silent>' . l:list_mapping['next-panel'] . ' :call docker_tools#dt_swap(1)<CR>'
+	execute 'nnoremap <buffer> <silent>' . l:list_mapping['previous-panel'] . ' :call docker_tools#dt_swap(-1)<CR>'
+	let l:mapping = s:dt_load_mapping(g:dockertools_managers[s:manager_position])
+	for [l:action,l:key] in items(l:mapping)
+		execute printf("nnoremap <buffer> <silent> %s :call docker_tools#dt_action('%s')<CR>",l:key,l:action)
+		execute printf("nnoremap <buffer> <silent> %s%s :call docker_tools#dt_action_option('%s')<CR>",l:list_mapping['option'],l:key,l:action)
+	endfor
+	for l:i in range(1,len(g:dockertools_managers))
+		execute printf("nnoremap <buffer> <silent> <leader>%d :call docker_tools#dt_go(%d)<CR>",l:i,l:i-1)
+	endfor
 endfunction
 
 function! s:dt_ui_load() abort
 	setlocal modifiable
-	let save_cursor = getcurpos()
+	let l:save_cursor = getcurpos()
 	silent 1,$d
 	if b:show_help
 		call s:dt_get_help()
@@ -154,41 +167,37 @@ function! s:dt_ui_load() abort
 		let b:first_row += 1
 	endif
 
-	silent! execute printf("read ! %s%s ps%s %s",s:sudo_mode(),g:dockertools_docker_cmd,['',' -a'][b:show_all_containers], s:dockertools_ls_filter)
+	silent! execute printf("read ! %s%s %s ls %s %s",s:sudo_mode(),g:dockertools_docker_cmd,g:dockertools_managers[s:manager_position],['','-a'][b:show_all_containers&&s:manager_position!=2], s:dockertools_ls_filter)
 
 	silent 1d
-	call setpos('.', save_cursor)
+	call setpos('.', l:save_cursor)
 	setlocal nomodifiable
 endfunction
 
 function! s:dt_get_help() abort
+	let l:manager = g:dockertools_managers[s:manager_position]
+	let l:mapping = s:dt_load_mapping(l:manager)
+	let l:Helper = function('docker_tools#'.l:manager.'#help')
+	let l:list_mapping = s:dt_load_mapping('list')
+	let l:List_helper = function('docker_tools#list#help')
 	let help = "# vim-docker-tools quickhelp\n"
 	let help .= "# ------------------------------------------------------------------------------\n"
-	let help .= "# s: start container\n"
-	let help .= "# d: stop container\n"
-	let help .= "# r: restart container\n"
-	let help .= "# x: delete container\n"
-	let help .= "# p: pause container\n"
-	let help .= "# u: unpause container\n"
-	let help .= "# >: execute command to container\n"
-	let help .= "# <: show container logs\n"
-	let help .= "# a: toggle show all/running containers\n"
-	let help .= "# f: set container filter\n"
-	let help .= "# R: refresh container status\n"
-	let help .= "# ?: toggle help\n"
+	let help .= l:Helper(l:mapping)
+	let help .= "# ------------------------------------------------------------------------------\n"
+	let help .= l:List_helper(l:list_mapping)
 	let help .= "# ------------------------------------------------------------------------------\n"
 	silent! put =help
 endfunction
 
 function! s:dt_unset_winid() abort
-	if exists('g:dockertools_winid')
-		unlet g:dockertools_winid
+	if exists('s:dockertools_winid')
+		unlet s:dockertools_winid
 	endif
 endfunction
 
 function! s:dt_container_selected() abort
-	let row_num = getcurpos()[1]
-	if row_num <=# b:first_row
+	let l:row_num = getcurpos()[1]
+	if l:row_num <=# b:first_row
 		return 0
 	endif
 	return 1
@@ -202,76 +211,113 @@ function! s:dt_set_filter(filters) abort
 		let s:dockertools_ls_filter = ''
 		return
 	endif
+	let l:manager = g:dockertools_managers[s:manager_position]
+	let l:valid_filters = function('docker_tools#'.l:manager.'#filter')()
 	let l:filters = ''
-	for l:ps_filter in split(a:filters, ' ')
-		let l:filter_components = split(l:ps_filter, '=')
-		if index(s:container_filters, filter_components[0]) > -1
-			let l:filters = join([l:filters, '-f', l:ps_filter], ' ')
+	for l:ls_filter in split(a:filters, ' ')
+		let l:filter_components = split(l:ls_filter, '=')
+		if index(l:valid_filters, filter_components[0]) > -1
+			let l:filters = join([l:filters, '-f', l:ls_filter], ' ')
 		endif
 	endfor
 	let s:dockertools_ls_filter = l:filters
 endfunction
+
+function! s:dt_do(manager,action,id,...) abort
+	let l:config = s:dt_load_config(a:manager,a:action)
+	if has_key(l:config,'options')
+		let l:instruction = printf("%s%s %s %s %s %s %s",s:sudo_mode(),g:dockertools_docker_cmd,a:manager,l:config.command,join(a:000,' '),l:config.options,a:id)
+	else
+		let l:instruction = printf("%s%s %s %s %s %s",s:sudo_mode(),g:dockertools_docker_cmd,a:manager,l:config.command,join(a:000,' '),a:id)
+	endif
+	let l:runner = {'action':a:action,'id':a:id,'instruction':l:instruction}
+	if has_key(l:config,'args')
+		let l:runner.args = l:config.args
+	endif
+	let l:runner.Fn = funcref('s:'.l:config['mode'].'_mode')
+	let l:runner.Do = funcref('s:'.l:config['type'].'_type')
+	if has_key(l:config,'msg')
+		call s:echo_msg(printf("%s %s...",l:config.msg,a:id))
+	endif
+	call l:runner.Do()
+endfunction
+
+function! s:dt_switch_panel()
+	call s:dt_ui_load()
+	call s:dt_set_mapping()
+	execute printf("setlocal filetype=docker-tools-%s", g:dockertools_managers[s:manager_position])
+endfunction
+
+function! s:dt_load_config(manager,action)
+	if !has_key(s:config,a:manager)
+		let l:Loader = function('docker_tools#'.a:manager.'#config')
+		let s:config[a:manager] = Loader()
+	endif
+	return s:config[a:manager][a:action]
+endfunction
+
+function! s:dt_load_mapping(manager)
+	if !has_key(s:mapping,a:manager)
+		let l:Loader = function('docker_tools#'.a:manager.'#mapping')
+		if exists('g:dockertools_'.a:manager.'_mapping')
+			let s:mapping[a:manager] = extend(Loader(),eval('g:dockertools_'.a:manager.'_mapping'))
+		else
+			let s:mapping[a:manager] = Loader()
+		endif
+	endif
+	return s:mapping[a:manager]
+endfunction
 "}}}
 "container commands{{{
 function! docker_tools#container_action(action,id,...) abort
-	call s:container_action_run(a:action,a:id,join(a:000,' '))
+	call s:dt_do('container',a:action,a:id,join(a:000,' '))
 endfunction
 
-function! docker_tools#container_logs(id,...) abort
-	silent execute printf("botright %d split %s_LOGS",g:dockertools_logs_size,a:id)
-	silent execute printf("read ! %s%s container logs %s %s",s:sudo_mode(),g:dockertools_docker_cmd,join(a:000,' '),a:id)
-	silent 1d
-	setlocal buftype=nofile bufhidden=delete cursorline nobuflisted readonly nomodifiable
-	nnoremap <buffer> <silent> q :quit<CR>
+function! docker_tools#command_run(manager,action,id,...) abort
+	call s:dt_do(a:manager,a:action,a:id,join(a:000,' '))
 endfunction
 "}}}
-"container functions{{{
-function! s:container_exec(command) abort
-	if a:command !=# ""
-		let containerid = s:dt_get_id()
-		call s:term_win_open(printf('%s%s exec -ti %s sh -c "%s"',s:sudo_mode(),g:dockertools_docker_cmd,containerid,a:command),containerid)
-	endif
-endfunction
-
-function! s:container_action_run(action,id,options) abort
-	call s:echo_container_action_msg(a:action,a:id)
-	if has('nvim')
-		call jobstart(printf('%s%s container %s %s %s',s:sudo_mode(),g:dockertools_docker_cmd,a:action,a:options,a:id),{'on_stdout': 'docker_tools#action_cb','on_stderr': 'docker_tools#err_cb'})
-	elseif has('job') && !g:dockertools_disable_job
-		call job_start(printf('%s%s container %s %s %s',s:sudo_mode(),g:dockertools_docker_cmd,a:action,a:options,a:id),{'out_cb': 'docker_tools#action_cb','err_cb': 'docker_tools#err_cb'})
-	else
-		call system(printf('%s%s container %s %s %s',s:sudo_mode(),g:dockertools_docker_cmd,a:action,a:options,shellescape(a:id)))
-	endif
-endfunction
-
-function! s:echo_container_action_msg(action,id) abort
-	if a:action=='start'
-		call s:echo_msg('Starting container '.a:id.'...')
-	elseif a:action=='stop'
-		call s:echo_msg('Stopping container '.a:id.'...')
-	elseif a:action=='rm'
-		call s:echo_msg('Removing container '.a:id.'...')
-	elseif a:action=='restart'
-		call s:echo_msg('Restarting container '.a:id.'...')
-	endif
-endfunction
-
+"autocomplete functions{{{
 function! s:refresh_container_list() abort
-	let container_str = system(s:sudo_mode().g:dockertools_docker_cmd.' ps -a --format="{{.ID}} {{.Names}}"')
+	let container_str = system(s:sudo_mode().g:dockertools_docker_cmd.' container ls -a --format="{{.ID}} {{.Names}}"')
 	let s:container_list = split(container_str)
 endfunction
 
-function! docker_tools#complete(ArgLead, CmdLine, CursorPos) abort
+function! docker_tools#container_complete(ArgLead, CmdLine, CursorPos) abort
 	if !exists('s:container_list')
 		call s:refresh_container_list()
 	endif
 	return filter(s:container_list, 'v:val =~ "^'.a:ArgLead.'"')
 endfunction
+
+function! s:refresh_image_list() abort
+	let image_str = system(s:sudo_mode().g:dockertools_docker_cmd.' image ls -a --format="{{.ID}}"')
+	let s:image_list = split(image_str)
+endfunction
+
+function! docker_tools#image_complete(ArgLead, CmdLine, CursorPos) abort
+	if !exists('s:image_list')
+		call s:refresh_image_list()
+	endif
+	return filter(s:image_list, 'v:val =~ "^'.a:ArgLead.'"')
+endfunction
+
+function! s:refresh_network_list() abort
+	let network_str = system(s:sudo_mode().g:dockertools_docker_cmd.' network ls -a --format="{{.ID}} {{.Name}}"')
+	let s:network_list = split(network_str)
+endfunction
+
+function! docker_tools#network_complete(ArgLead, CmdLine, CursorPos) abort
+	if !exists('s:network_list')
+		call s:refresh_network_list()
+	endif
+	return filter(s:network_list, 'v:val =~ "^'.a:ArgLead.'"')
+endfunction
 "}}}
 "utils{{{
 function! s:echo_msg(msg) abort
 	redraw
-	echom "vim-docker: " . a:msg
+	echom "docker-tools: " . a:msg
 endfunction
 
 function! s:echo_error(msg) abort
@@ -286,23 +332,62 @@ function! s:echo_warning(msg) abort
 	echohl normal
 endfunction
 
-function! s:term_win_open(command,termname) abort
+function! s:interactive_mode() abort dict
 	if has('nvim')
-		silent execute printf("botright %d split TERM",g:dockertools_term_size)
-		call termopen(a:command)
+		silent execute printf("%s %d split TERM",g:dockertools_term_position,g:dockertools_term_size)
+		setlocal buftype=nofile bufhidden=delete nobuflisted noswapfile
+		call termopen(self.instruction, {"on_exit":{-> execute("$")}})
 	elseif has('terminal')
-		silent execute printf("botright %d split TERM",g:dockertools_term_size)
-		call term_start(a:command,{"term_finish":['open','close'][g:dockertools_term_closeonexit],"term_name":a:termname,"curwin":"1"})
+		silent execute printf("%s %d split TERM",g:dockertools_term_position,g:dockertools_term_size)
+		setlocal buftype=nofile bufhidden=delete nobuflisted noswapfile
+		call term_start(self.instruction,{"term_finish":['open','close'][g:dockertools_term_closeonexit],"term_name":self.id,"curwin":"1"})
 	else
 		call s:echo_error('terminal is not supported')
 	endif
 endfunction
 
+function! s:export_mode() abort dict
+	silent execute printf("%s %d split %s",g:dockertools_logs_position,g:dockertools_logs_size,self.id)
+	silent execute printf("read ! %s",self.instruction)
+	silent 1d
+	setlocal buftype=nofile bufhidden=delete cursorline nobuflisted readonly nomodifiable noswapfile
+	nnoremap <buffer> <silent> q :quit<CR>
+endfunction
+
+function! s:execute_mode() abort dict
+	if has('nvim')
+		call jobstart(self.instruction,{'on_stdout': 'docker_tools#action_cb','on_stderr': 'docker_tools#err_cb'})
+	elseif has('job') && !g:dockertools_disable_job
+		call job_start(self.instruction,{'out_cb': 'docker_tools#action_cb','err_cb': 'docker_tools#err_cb'})
+	else
+		call system(self.instruction)
+	endif
+endfunction
+
 function! s:sudo_mode() abort
-	return ['','sudo '][g:dockertools_sudo_mode]
+	return ['', 'sudo '][g:dockertools_sudo_mode]
+endfunction
+
+function! s:normal_type() abort dict
+	call self.Fn()
+endfunction
+
+function! s:confirm_type() abort dict
+	if confirm(self.args.confirm_msg, "&yes\n&no") == 1
+		call self.Fn()
+	endif
+endfunction
+
+function! s:input_type() abort dict
+	let l:input_response = input(self.args.input_msg)
+	if l:input_response != ''
+		call call(self.args.Input_fn,[l:input_response],self)
+		call self.Fn()
+	endif
 endfunction
 "}}}
 "referral vars {{{
-let s:container_filters  = ['id', 'name', 'label', 'exited', 'status', 'ancestor', 'before', 'since', 'volume', 'network', 'publish', 'expose', 'health', 'isolation', 'is-task']
+let s:config = {}
+let s:mapping = {}
 "}}}
 " vim: fdm=marker:
