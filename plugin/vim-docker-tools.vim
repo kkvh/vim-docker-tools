@@ -63,3 +63,5 @@ command! -complete=customlist,docker_tools#container_complete -nargs=+ Container
 command! -complete=customlist,docker_tools#container_complete -nargs=+ ContainerPause call docker_tools#command_run('container','pause',<f-args>)
 command! -complete=customlist,docker_tools#container_complete -nargs=+ ContainerUnpause call docker_tools#command_run('container','unpause',<f-args>)
 command! -complete=customlist,docker_tools#container_complete -nargs=+ ContainerLogs call docker_tools#command_run('container','logs',<f-args>)
+command! -complete=customlist,docker_tools#network_complete -nargs=+ NetworkInspect call docker_tools#command_run('network','inspect',<f-args>)
+command! -complete=customlist,docker_tools#network_complete -nargs=+ NetworkRemove call docker_tools#command_run('network','rm',<f-args>)
