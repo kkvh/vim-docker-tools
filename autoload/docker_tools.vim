@@ -167,7 +167,7 @@ function! s:dt_ui_load() abort
 		let b:first_row += 1
 	endif
 
-	silent! execute printf("read ! %s%s %s ls %s %s",s:sudo_mode(),g:dockertools_docker_cmd,g:dockertools_managers[s:manager_position],['','-a'][b:show_all_containers&&s:manager_position!=2], s:dockertools_ls_filter)
+	silent! execute printf("read ! %s%s %s ls %s %s",s:sudo_mode(),g:dockertools_docker_cmd,g:dockertools_managers[s:manager_position],['','-a'][b:show_all_containers&&s:manager_position!=2&&s:manager_position!=-1], s:dockertools_ls_filter)
 
 	silent 1d
 	call setpos('.', l:save_cursor)
