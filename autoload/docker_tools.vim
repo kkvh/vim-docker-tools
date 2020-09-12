@@ -303,7 +303,7 @@ function! docker_tools#image_complete(ArgLead, CmdLine, CursorPos) abort
 endfunction
 
 function! s:refresh_network_list() abort
-	let network_str = system(s:sudo_mode().g:dockertools_docker_cmd.' network ls -a --format="{{.ID}} {{.Name}}"')
+	let network_str = system(s:sudo_mode().g:dockertools_docker_cmd.' network ls --format="{{.ID}} {{.Name}}"')
 	let s:network_list = split(network_str)
 endfunction
 
