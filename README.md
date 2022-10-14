@@ -1,5 +1,5 @@
 # vim-docker-tools
-![demo](https://thumbs.gfycat.com/JitteryHealthyAmericanshorthair-size_restricted.gif) 
+![demo](https://i.imgur.com/CM7RI6Z.gif) 
 * Open DockerTools Panel with `:DockerToolsOpen`, close it with `:DockerToolsClose`
 * Toggle DockerTools Panel with `:DockerToolsToggle`
 * Set Docker daemon host with `:DockerToolsSetHost`
