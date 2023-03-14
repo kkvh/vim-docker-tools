@@ -167,7 +167,8 @@ function! s:dt_ui_load() abort
 		let b:first_row += 1
 	endif
 
-	silent! execute printf("read ! %s%s %s ls %s %s",s:sudo_mode(),g:dockertools_docker_cmd,g:dockertools_managers[s:manager_position],['','-a'][b:show_all_containers&&s:manager_position!=2&&s:manager_position!=-1], s:dockertools_ls_filter)
+	let l:manager = g:dockertools_managers[s:manager_position]
+	silent! execute printf("read ! %s%s %s ls %s %s %s",s:sudo_mode(),g:dockertools_docker_cmd,l:manager,['','-a'][b:show_all_containers&&s:manager_position!=2&&s:manager_position!=-1], s:dockertools_ls_filter, s:dt_set_format(l:manager))
 
 	silent 1d
 	call setpos('.', l:save_cursor)
@@ -223,6 +224,13 @@ function! s:dt_set_filter(filters) abort
 	let s:dockertools_ls_filter = l:filters
 endfunction
 
+function! s:dt_set_format(manager) abort
+	if !exists('g:dockertools_'.a:manager.'_format')
+		return ''
+	endif
+	return shellescape(printf('--format=%s', eval('g:dockertools_'.a:manager.'_format')), 1)
+endfunction
+
 function! s:dt_do(manager,action,id,...) abort
 	let l:config = s:dt_load_config(a:manager,a:action)
 	if has_key(l:config,'options')
@@ -234,6 +242,7 @@ function! s:dt_do(manager,action,id,...) abort
 	if has_key(l:config,'args')
 		let l:runner.args = l:config.args
 	endif
+
 	let l:runner.Fn = funcref('s:'.l:config['mode'].'_mode')
 	let l:runner.Do = funcref('s:'.l:config['type'].'_type')
 	if has_key(l:config,'msg')

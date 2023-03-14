@@ -46,6 +46,18 @@ if !exists('g:dockertools_disable_job')
 	let g:dockertools_disable_job = 0
 endif
 
+if !exists('g:dockertools_container_format')
+	let g:dockertools_container_format = 'table {{.ID}}\t{{.Image}}\t{{.Command}}\t{{.RunningFor}}\t{{.Status}}\t{{.Ports}}\t{{.Names}}'
+endif
+
+if !exists('g:dockertools_image_format')
+	let g:dockertools_image_format = 'table {{.Repository}}\t{{.Tag}}\t{{.ID}}\t{{.CreatedSince}}\t{{.Size}}'
+endif
+
+if !exists('g:dockertools_network_format')
+	let g:dockertools_network_format = 'table {{.ID}}\t{{.Name}}\t{{.Driver}}\t{{.Scope}}'
+endif
+
 if exists('g:dockertools_docker_host')
 	call s:dt_set_host(g:dockertools_docker_host)
 else
