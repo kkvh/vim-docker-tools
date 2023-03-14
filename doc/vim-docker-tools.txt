@@ -100,7 +100,7 @@ COMMANDS                                               *docker-tools-commands*
 	  Show container logs.
 
 ==============================================================================
-MANAGERS                                                 *docker-tools-managers*
+MANAGERS                                               *docker-tools-managers*
 
 Manager is the implementation of docker's management commands. Currently 
 supports: 'list', 'container'.
@@ -169,7 +169,7 @@ Show all or running containers only by default. Default value: 1
   let g:dockertools_default_all = 1
 <
 
-                                                      *'g:dockertools_managers'*
+                                                    *'g:dockertools_managers'*
 
 Use this option to set the supported managers and its order. 
 Default value: ['container', 'image', 'network']
@@ -203,6 +203,29 @@ Default value: 0
 <
 Note: |system()| will not return callback message.
 
+                                            *'g:dockertools_container_format'*
+
+Format display output for containers. Please refer to
+https://docs.docker.com/config/formatting/ for more details.
+>
+	let g:dockertools_container_format = 'table {{.ID}}\t{{.Name}}'
+<
+
+                                                *'g:dockertools_image_format'*
+
+Format display output for images. Please refer to
+https://docs.docker.com/config/formatting/ for more details.
+>
+	let g:dockertools_image_format = 'table {{.Repository}}\t{{.Tag}}'
+<
+
+                                              *'g:dockertools_network_format'*
+
+Format display output for networks. Please refer to
+https://docs.docker.com/config/formatting/ for more details.
+>
+	let g:dockertools_network_format = 'table {{.ID}}\t{{.Name}}'
+<
 
                                                  *'g:dockertools_docker_host'*
 
