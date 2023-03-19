@@ -18,7 +18,7 @@
 
 * NeoBundle
 
-      `NeoBundle 'kkvh/vim-docker-tools'
+      NeoBundle 'kkvh/vim-docker-tools'
 
 * Vundle
 
