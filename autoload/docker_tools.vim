@@ -168,6 +168,7 @@ function! s:dt_ui_load() abort
 	endif
 
 	let l:manager = g:dockertools_managers[s:manager_position]
+        call s:echo_msg(printf("%s%s %s ls %s %s %s",s:sudo_mode(),g:dockertools_docker_cmd,l:manager,['','-a'][b:show_all_containers&&s:manager_position!=2&&s:manager_position!=-1], s:dockertools_ls_filter, s:dt_set_format(l:manager)))
 	silent! execute printf("read ! %s%s %s ls %s %s %s",s:sudo_mode(),g:dockertools_docker_cmd,l:manager,['','-a'][b:show_all_containers&&s:manager_position!=2&&s:manager_position!=-1], s:dockertools_ls_filter, s:dt_set_format(l:manager))
 
 	silent 1d
